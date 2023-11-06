@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Simple-Schema",
+  "type": "object",
+  "properties": {
+    "intValueNoRange": {
+      "description": "An int value no range",
+      "type": "integer"
+    },
+    "intValueByteType": {
+      "description": "An int value with byte type range",
+      "type": "integer",
+      "minimum": -128,
+      "maximum": 127
+    },
+    "intValueShortType": {
+      "description": "An int value with short type range",
+      "type": "integer",
+      "minimum": -32768,
+      "maximum": 32767
+    },
+    "intValueIntegerType": {
+      "description": "An int value with integer type range",
+      "type": "integer",
+      "minimum": -2147483648,
+      "maximum": 2147483647
+    },
+    "intValueLongType": {
+      "description": "An int value with long type range",
+      "type": "integer",
+      "minimum": -2147483649,
+      "maximum": 2147483648
+    }
+  }
+}
