@@ -33,3 +33,28 @@ Also the `exclusiveMinimum` and `exclusiveMaximum` keywords are supported that c
 
 ## Number
 A JSON number could be converted both in a **FloatType** and a **DoubleType** or even into a **DecimalType**. A JSON schema however lacks the possibility to define the purpose of the number in a standard manner, hence for safety it is converted into a **DoubleType**.
+
+
+
+## Array
+
+## Object
+
+# In progress
+
+## DateTime
+JSON does not include a built-in data type for representing date and time values. It however supports a `format` for a string type value. The following could be used that are all ISO 8601 format based:
+
+- date-time "yyyy-MM-ddThh:mm:ssZ" could be parsed to **TimestampType**
+- date "yyyy-MM-dd" could be parsed to **DateType**
+- time "hh:mm:ssZ" would only fit a **TimestampType** in case a complete timestamp is constructed. This cannot be guessed upfront and as such it will be converted to a **StringType** instead.
+
+# Unsupported (yet)
+
+- Const
+- Not
+- anyOf
+- allOf
+- oneOf
+- any
+- null
