@@ -5,9 +5,9 @@ A python mapper that converts JSON data types to a Spark SQL type
 Spark has built in support for converting [Avro data types](https://avro.apache.org/docs/1.11.1/specification/) into Spark SQL types, but lacks similar functionality in regards to JSON data types. Instead Spark has logic that can [infer types](https://spark.apache.org/docs/latest/sql-data-sources-json.html) from sample JSON documents. At first glance this might appear sufficient, however at closer inspection some disadvantages surface. For instance:
 
  - It is impossible to define a StructField as optional. Every subsequent JSON document that is processed needs to supply all the fields that were present in the initial JSON document.
- - Numberic values (both JSON integer and number) should be converted to te largest Spark type because ranges are unknown. This could lead additional storage requirements (although minimal in modern systems). When using a JSON schema that specifies ranges the right Spark type can be selected
+ - Numberic values (both JSON integer and number) should be converted to the largest Spark type because ranges are unknown. This could lead additional storage requirements (although minimal in modern systems). When using a JSON schema that specifies ranges the right Spark type can be selected.
 
-This package provides a mapping function that can be used similar to how avro schemas are used whilst keeping all relevant details to create a StructType with optimal StructFields.
+This package provides a mapping function that can be used similar to how avro schemas are used whilst keeping all relevant details to create a StructType with optimal StructFields. See the [supported types](docs/types.md).
 
 ## How to use
 

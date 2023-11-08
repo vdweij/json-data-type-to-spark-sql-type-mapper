@@ -44,6 +44,24 @@ class TestMappings(unittest.TestCase):
         # expects an StructType with a field array of length 3
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 3)
+    
+    def test_str_type_schema(self):
+        with open("tests/string-type-schema.json") as schema_file:
+            schema = json.load(schema_file)
+        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        # expects an StructType with a field array of length 5
+        self.assertIsInstance(struct_type, StructType)
+        self.assertTrue(len(struct_type.fields) == 1)
+        self.assertEqual((struct_type.fields[struct_type.fieldNames().index("stringValue")]).dataType, StringType())
+        
+    def test_bool_type_schema(self):
+        with open("tests/bool-type-schema.json") as schema_file:
+            schema = json.load(schema_file)
+        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        # expects an StructType with a field array of length 5
+        self.assertIsInstance(struct_type, StructType)
+        self.assertTrue(len(struct_type.fields) == 1)
+        self.assertEqual((struct_type.fields[struct_type.fieldNames().index("boolValue")]).dataType, BooleanType())
         
     def test_int_type_schema(self):
         with open("tests/int-type-schema.json") as schema_file:
@@ -57,6 +75,16 @@ class TestMappings(unittest.TestCase):
         self.assertEqual((struct_type.fields[struct_type.fieldNames().index("intValueShortType")]).dataType, ShortType())
         self.assertEqual((struct_type.fields[struct_type.fieldNames().index("intValueIntegerType")]).dataType, IntegerType())
         self.assertEqual((struct_type.fields[struct_type.fieldNames().index("intValueLongType")]).dataType, LongType())
+
+    def test_num_type_schema(self):
+        with open("tests/num-type-schema.json") as schema_file:
+            schema = json.load(schema_file)
+        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        # expects an StructType with a field array of length 2
+        self.assertIsInstance(struct_type, StructType)
+        self.assertTrue(len(struct_type.fields) == 2)
+        self.assertEqual((struct_type.fields[struct_type.fieldNames().index("numValueNoRange")]).dataType, DoubleType())
+        self.assertEqual((struct_type.fields[struct_type.fieldNames().index("numValueWithRange")]).dataType, DoubleType())
 
 if __name__ == '__main__':
     unittest.main()

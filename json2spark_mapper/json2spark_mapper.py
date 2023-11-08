@@ -6,9 +6,11 @@ def map_json_schema_to_spark_schema(schema) -> StructType:
     fields = []
     for key, value in properties.items():
         nullable = True
-        field_type = None
+        field_type = None 
         if value['type'] == 'string':
             field_type = StringType()
+        elif value['type'] == 'boolean':
+            field_type = BooleanType() 
         elif value['type'] == 'integer':
             # This is tricky as there are many Spark types that can be mapped to an int
             field_type = convert_json_int(value)
@@ -106,16 +108,18 @@ def convert_json_int(value):
 def convert_json_number(value):
     # This is also tricky as there are many Spark types that can be mapped to a number
     #
-    # FloatType: Represents 4-byte single-precision floating point numbers.
-    # DoubleType: Represents 8-byte double-precision floating point numbers.
-    # DecimalType: Represents arbitrary-precision signed decimal numbers. Backed internally by java.math.BigDecimal. 
-    # A BigDecimal consists of an arbitrary precision integer unscaled value and a 32-bit integer scale.
+    # - FloatType: Represents 4-byte single-precision floating point numbers.
+    # - DoubleType: Represents 8-byte double-precision floating point numbers.
+    #
+    # And optionally
+    # - DecimalType: Represents arbitrary-precision signed decimal numbers. Backed internally by java.math.BigDecimal. 
+    #   A BigDecimal consists of an arbitrary precision integer unscaled value and a 32-bit integer scale.
     # 
     # https://spark.apache.org/docs/latest/sql-ref-datatypes.html
     #
     #
     field_type = DoubleType()
-    # TODO: some conversion checks
+    # There is no way to know to purpose of the value. To be on the safe side use DoubleType
     return field_type
     
 def determine_inclusive_range(value):

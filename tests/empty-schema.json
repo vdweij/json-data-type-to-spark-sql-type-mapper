@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "title": "Simple-Schema",
+    "title": "Empty-Schema",
     "type": "object",
     "properties": {
         

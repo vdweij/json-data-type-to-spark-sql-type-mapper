@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Number-Type-Schema",
+  "type": "object",
+  "properties": {
+    "numValueNoRange": {
+      "description": "A num value no range",
+      "type": "number"
+    },
+    "numValueWithRange": {
+      "description": "A num value with a range",
+      "type": "number",
+      "minimum": -2147483649,
+      "maximum": 2147483648
+    }
+  }
+}
