@@ -1,0 +1,21 @@
+{
+    "title": "String-DateTime-Schema",
+    "type": "object",
+    "properties": {
+        "stringDateTimeValue": {
+            "type": "string",
+            "description": "A string datetime value",
+            "format" : "date-time"
+        },
+        "stringDateValue": {
+            "type": "string",
+            "description": "A string date value",
+            "format" : "date"
+        },
+        "stringTimeValue": {
+            "type": "string",
+            "description": "A string date value",
+            "format" : "time"
+        }
+    }
+}

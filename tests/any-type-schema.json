@@ -1,0 +1,10 @@
+{
+    "title": "Any-Schema",
+    "type": "object",
+    "properties": {
+        "anyValue": {
+            "type": "any",
+            "description": "Any value"
+        }
+    }
+}

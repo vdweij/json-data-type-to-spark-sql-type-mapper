@@ -1,0 +1,10 @@
+{
+    "title": "Null-Schema",
+    "type": "object",
+    "properties": {
+        "nullValue": {
+            "type": "null",
+            "description": "A null value"
+        }
+    }
+}

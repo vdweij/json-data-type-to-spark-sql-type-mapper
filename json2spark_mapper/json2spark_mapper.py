@@ -1,47 +1,63 @@
 import json
-from pyspark.sql.types import StructType, StructField, ArrayType, ByteType, ShortType, IntegerType, LongType, FloatType, DoubleType, StringType, BooleanType, TimestampType, NullType
+from pyspark.sql.types import StructType, StructField, ArrayType, ByteType, ShortType, IntegerType, LongType, FloatType, DoubleType, StringType, BooleanType, TimestampType, DateType, NullType
 
 def map_json_schema_to_spark_schema(schema) -> StructType:
     properties = schema['properties']
     fields = []
     for key, value in properties.items():
-        nullable = True
-        field_type = None 
-        if value['type'] == 'string':
+        
+        if 'type' in value:
+            nullable = True
+            field_type = None 
+            if value['type'] == 'string':
+                field_type = convert_json_string(value)
+            elif value['type'] == 'boolean':
+                field_type = BooleanType() 
+            elif value['type'] == 'integer':
+                # This is tricky as there are many Spark types that can be mapped to an int
+                field_type = convert_json_int(value)
+            elif value['type'] == 'number':
+                # This is also tricky as there are many Spark types that can be mapped to a number
+                field_type = convert_json_number(value)
+            elif value['type'] == 'array':
+                if 'items' in value:
+                    items_schemas = value['items']
+                    
+                    # An array can have a single type or an array of types
+                    if isinstance(items_schemas, dict):
+                        # put it into list
+                        items_schemas = [items_schemas]
+                        print("type items_schemas: ", type(items_schemas))
+                    
+                    # Check for size
+                    if len(items_schemas) < 1:
+                        raise Exception("Expected a least one type definition in an array")
+                    
+                    # Loop over item schemas
+                    for item_schema in items_schemas:
+                        if item_schema['type'] == 'object':
+                            field_type = ArrayType(StructType(map_json_schema_to_spark_schema(item_schema).fields))
+                        else:
+                            #field_type = ArrayType(map_json_type_to_spark_type(item_schema['type']))
+                            field_type = ArrayType(map_json_type_to_spark_type(item_schema))
+            elif value['type'] == 'object':
+                field_type = StructType(map_json_schema_to_spark_schema(value).fields)
+            elif value['type'] == 'null':
+                field_type = NullType()
+            elif value['type'] == 'any':
+                field_type = StringType()
+
+        # anyOf is not a type but also a keyword
+        elif 'anyOf' in value:
+            # A constant can hold all sorts of data types, even complex structures. The savest Spark data type is a StringType.
+            nullable = True
             field_type = StringType()
-        elif value['type'] == 'boolean':
-            field_type = BooleanType() 
-        elif value['type'] == 'integer':
-            # This is tricky as there are many Spark types that can be mapped to an int
-            field_type = convert_json_int(value)
-        elif value['type'] == 'number':
-            # This is also tricky as there are many Spark types that can be mapped to a number
-            field_type = convert_json_number(value)
-        elif value['type'] == 'array':
-            if 'items' in value:
-                items_schemas = value['items']
-                
-                # An array can have a single type or an array of types
-                if isinstance(items_schemas, dict):
-                    # put it into list
-                    items_schemas = [items_schemas]
-                    print("type items_schemas: ", type(items_schemas))
-                
-                # Check for size
-                if len(items_schemas) < 1:
-                    raise Exception("Expected a least one type definition in an array")
-                
-                # Loop over item schemas
-                for item_schema in items_schemas:
-                    if item_schema['type'] == 'object':
-                        field_type = ArrayType(StructType(map_json_schema_to_spark_schema(item_schema).fields))
-                    else:
-                        #field_type = ArrayType(map_json_type_to_spark_type(item_schema['type']))
-                        field_type = ArrayType(map_json_type_to_spark_type(item_schema))
-        elif value['type'] == 'object':
-            field_type = StructType(map_json_schema_to_spark_schema(value).fields)
-        elif value['type'] == 'datetime':
-            field_type = TimestampType()
+
+        # const is not a type but also a keyword
+        elif 'const' in value:
+            # A constant can hold all sorts of data types, even complex structures. The savest Spark data type is a StringType.
+            nullable = False # is this correct?
+            field_type = StringType()
         
         # check whether field is required
         if key in schema.get('required', []):
@@ -56,11 +72,12 @@ def map_json_schema_to_spark_schema(schema) -> StructType:
         fields.append(StructField(key, field_type, nullable))
     return StructType(fields)
 
+# Need to fix this code duplication....
 def map_json_type_to_spark_type(value):
     json_type = value['type']
     field_type = None
     if json_type == 'string':
-        field_type = StringType()
+        field_type = convert_json_string(value)
     elif json_type == 'integer':
         # This is tricky as there are many Spark types that can be mapped to an int
         # field_type = IntegerType()
@@ -69,12 +86,27 @@ def map_json_type_to_spark_type(value):
         # This is also tricky as there are many Spark types that can be mapped to a number
         # field_type = DoubleType()
         field_type = convert_json_number(value)
-    elif json_type == 'datetime':
-        field_type = TimestampType()
+    elif value['type'] == 'null':
+        field_type = NullType()
+    elif value['type'] == 'any':
+        field_type = StringType()
+
     else:
         raise ValueError(f"Invalid JSON type: {json_type}")
         
     return field_type
+
+def convert_json_string(value):
+    field_type =  StringType()
+    
+    if 'format' in value: # Need to check whether attribute is present first
+        if value['format'] == 'date-time':
+            field_type = TimestampType()
+        elif value['format'] == 'date':
+            field_type = DateType()
+        
+    return field_type
+    
 
 def convert_json_int(value):
     # This is tricky as there are many Spark types that can be mapped to an int

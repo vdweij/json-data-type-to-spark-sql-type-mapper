@@ -1,7 +1,30 @@
 # Supported Types
 
 ## String
-A JSON string is converted by the mapper to a Spark **StringType**. 
+A JSON string is converted by the mapper to a Spark **StringType**.
+
+### DateTime
+
+JSON does not include a built-in data type for representing date and time values. It however supports a `format` for a string type value. The following could be used, which are all ISO 8601 format based:
+
+- date-time "yyyy-MM-ddThh:mm:ssZ"
+- date "yyyy-MM-dd"
+- time "hh:mm:ssZ"
+
+In case a `date-time` or `date` format is specified it will be converted in respectively a **TimestampType** and a **DateType**. The `time`` format is ignored as it could only fit a **TimestampType** when prepended with a date part. This cannot be guessed upfront and as such it will be converted to a **StringType** instead.
+
+Below is an example of `date-time` format:
+```json
+{
+  "type": "object",
+  "properties": {
+    "dateOfBirth": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}
+```
 
 ## Boolean
 A JSON boolean is converted by the mapper to a Spark **BooleanType**. 
@@ -34,27 +57,25 @@ Also the `exclusiveMinimum` and `exclusiveMaximum` keywords are supported that c
 ## Number
 A JSON number could be converted both in a **FloatType** and a **DoubleType** or even into a **DecimalType**. A JSON schema however lacks the possibility to define the purpose of the number in a standard manner, hence for safety it is converted into a **DoubleType**.
 
-
-
 ## Array
 
 ## Object
 
-# In progress
+## Null
+In JSON, the null value represents the absence of a value. It is used to indicate that a JSON property or element does not have a value or is undefined. In case present the mapper converts it into a **NullType**.
 
-## DateTime
-JSON does not include a built-in data type for representing date and time values. It however supports a `format` for a string type value. The following could be used that are all ISO 8601 format based:
+## Any
+In JSON, the any type indicates an absence of constraints on the data type. The closest equivalent in Spark to an "any" type would be to use a more permissive data type like **StringType**. 
 
-- date-time "yyyy-MM-ddThh:mm:ssZ" could be parsed to **TimestampType**
-- date "yyyy-MM-dd" could be parsed to **DateType**
-- time "hh:mm:ssZ" would only fit a **TimestampType** in case a complete timestamp is constructed. This cannot be guessed upfront and as such it will be converted to a **StringType** instead.
+## AnyOf
+In JSON, the `anyOf` keyword indicates that the value must match any of the given types. The only safe type to convert it to would be **StringType**.
+
+
+## Const
+Although not a JSON type, the keyword `const` specifies a constant property's value that the corresponing JSON must exactly match. It can contain all sorts of value types, even complex data type, hence converting it to **StringType** is the safest option.
 
 # Unsupported (yet)
 
-- Const
-- Not
-- anyOf
-- allOf
-- oneOf
-- any
-- null
+- not (used for values)
+- allOf (used for a set of required properties)
+- oneOf (used for matching values)
