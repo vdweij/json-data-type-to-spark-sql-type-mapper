@@ -179,8 +179,32 @@ class TestMappings(unittest.TestCase):
         self.assertEqual((simpleObjectDataType[simpleObjectDataType.fieldNames().index("nestedObjectValue")]).dataType.typeName, StructType.typeName)
     
     # test simple array
+    def test_simple_array_type_schema(self):
+        with open("tests/simple-array-type-schema.json") as schema_file:
+            schema = json.load(schema_file)
+        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        # expects an StructType with a field array of length 1
+        self.assertIsInstance(struct_type, StructType)
+        self.assertTrue(len(struct_type.fields) == 1)
+        # compare type name, because instances will have different content
+        simpleArray = struct_type.fields[struct_type.fieldNames().index("simpleArrayValue")]
+        self.assertEqual(simpleArray.dataType.typeName, ArrayType(elementType=StringType()).typeName) # ArrayType needs an init paramter
+        # Check elementType properties
+        self.assertEqual(simpleArray.dataType.elementType, DoubleType())
     
     # test complex array
-
+    def test_complex_array_type_schema(self):
+        with open("tests/complex-array-type-schema.json") as schema_file:
+            schema = json.load(schema_file)
+        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        # expects an StructType with a field array of length 1
+        self.assertIsInstance(struct_type, StructType)
+        self.assertTrue(len(struct_type.fields) == 1)
+        # compare type name, because instances will have different content
+        complexArray = struct_type.fields[struct_type.fieldNames().index("simpleArrayValue")]
+        self.assertEqual(complexArray.dataType.typeName, ArrayType(elementType=StringType()).typeName) # ArrayType needs an init paramter
+        # Check elementType properties
+        self.assertEqual(complexArray.dataType.elementType, DoubleType())
+        
 if __name__ == '__main__':
     unittest.main()

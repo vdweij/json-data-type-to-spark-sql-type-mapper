@@ -62,7 +62,9 @@ A JSON array can hold a single type or a set of types. It is possible to nest ar
 
 - It is possible to define a range with minItems and maxItems
 - It is possible to define anyOf idicating which types are allowed
-- It is possible to define a structure with a specific order and types
+- It is possible to define a structure with a specific order, size and types
+
+JSON arrays can be represented using the **ArrayType** in Spark SQL. It is used to represent arrays or lists of elements. The elements within the array can have various data types, and Spark provides flexibility in handling arrays of different types.
 
 ## Object
 In JSON an `object` has fields with a name and a corresponding data type. It is possible to nest objects in objects to create complex representations. The type can be mapped to a **StructType** in Spark SQL that is also capable of containing fields of various types.

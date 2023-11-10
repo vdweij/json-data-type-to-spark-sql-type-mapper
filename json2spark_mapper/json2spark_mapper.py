@@ -78,6 +78,8 @@ def map_json_type_to_spark_type(value):
     field_type = None
     if json_type == 'string':
         field_type = convert_json_string(value)
+    elif value['type'] == 'boolean':
+        field_type = BooleanType() 
     elif json_type == 'integer':
         # This is tricky as there are many Spark types that can be mapped to an int
         # field_type = IntegerType()
