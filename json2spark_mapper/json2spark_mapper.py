@@ -58,7 +58,9 @@ def _internal_map_json_type_to_spark_type(json_snippet):
                         field_type = ArrayType(StructType(map_json_schema_to_spark_schema(item_schema).fields))
                     else:
                         field_type = ArrayType(_internal_map_json_type_to_spark_type(item_schema))
-                        #field_type = ArrayType(map_json_type_to_spark_type(item_schema))
+                
+                # TODO: fix array with multiple types
+                
         elif value['type'] == 'object':
             field_type = StructType(map_json_schema_to_spark_schema(value).fields)
         elif value['type'] == 'null':
