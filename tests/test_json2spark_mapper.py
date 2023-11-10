@@ -201,7 +201,7 @@ class TestMappings(unittest.TestCase):
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 1)
         # compare type name, because instances will have different content
-        complexArray = struct_type.fields[struct_type.fieldNames().index("simpleArrayValue")]
+        complexArray = struct_type.fields[struct_type.fieldNames().index("complexArrayValue")]
         self.assertEqual(complexArray.dataType.typeName, ArrayType(elementType=StringType()).typeName) # ArrayType needs an init paramter
         # Check elementType properties
         self.assertEqual(complexArray.dataType.elementType, DoubleType())

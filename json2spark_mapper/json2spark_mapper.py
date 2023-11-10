@@ -5,59 +5,9 @@ def map_json_schema_to_spark_schema(schema) -> StructType:
     properties = schema['properties']
     fields = []
     for key, value in properties.items():
+        field_type = _internal_map_json_type_to_spark_type(value)
         
-        if 'type' in value:
-            nullable = True
-            field_type = None 
-            if value['type'] == 'string':
-                field_type = convert_json_string(value)
-            elif value['type'] == 'boolean':
-                field_type = BooleanType() 
-            elif value['type'] == 'integer':
-                # This is tricky as there are many Spark types that can be mapped to an int
-                field_type = convert_json_int(value)
-            elif value['type'] == 'number':
-                # This is also tricky as there are many Spark types that can be mapped to a number
-                field_type = convert_json_number(value)
-            elif value['type'] == 'array':
-                if 'items' in value:
-                    items_schemas = value['items']
-                    
-                    # An array can have a single type or an array of types
-                    if isinstance(items_schemas, dict):
-                        # put it into list
-                        items_schemas = [items_schemas]
-                        print("type items_schemas: ", type(items_schemas))
-                    
-                    # Check for size
-                    if len(items_schemas) < 1:
-                        raise Exception("Expected a least one type definition in an array")
-                    
-                    # Loop over item schemas
-                    for item_schema in items_schemas:
-                        if item_schema['type'] == 'object':
-                            field_type = ArrayType(StructType(map_json_schema_to_spark_schema(item_schema).fields))
-                        else:
-                            #field_type = ArrayType(map_json_type_to_spark_type(item_schema['type']))
-                            field_type = ArrayType(map_json_type_to_spark_type(item_schema))
-            elif value['type'] == 'object':
-                field_type = StructType(map_json_schema_to_spark_schema(value).fields)
-            elif value['type'] == 'null':
-                field_type = NullType()
-            elif value['type'] == 'any':
-                field_type = StringType()
-
-        # anyOf is not a type but also a keyword
-        elif 'anyOf' in value:
-            # A constant can hold all sorts of data types, even complex structures. The savest Spark data type is a StringType.
-            nullable = True
-            field_type = StringType()
-
-        # const is not a type but also a keyword
-        elif 'const' in value:
-            # A constant can hold all sorts of data types, even complex structures. The savest Spark data type is a StringType.
-            nullable = False # is this correct?
-            field_type = StringType()
+        nullable = True
         
         # check whether field is required
         if key in schema.get('required', []):
@@ -72,33 +22,65 @@ def map_json_schema_to_spark_schema(schema) -> StructType:
         fields.append(StructField(key, field_type, nullable))
     return StructType(fields)
 
-# Need to fix this code duplication....
-def map_json_type_to_spark_type(value):
-    json_type = value['type']
-    field_type = None
-    if json_type == 'string':
-        field_type = convert_json_string(value)
-    elif value['type'] == 'boolean':
-        field_type = BooleanType() 
-    elif json_type == 'integer':
-        # This is tricky as there are many Spark types that can be mapped to an int
-        # field_type = IntegerType()
-        field_type = convert_json_int(value)
-    elif json_type == 'number':
-        # This is also tricky as there are many Spark types that can be mapped to a number
-        # field_type = DoubleType()
-        field_type = convert_json_number(value)
-    elif value['type'] == 'null':
-        field_type = NullType()
-    elif value['type'] == 'any':
-        field_type = StringType()
 
-    else:
-        raise ValueError(f"Invalid JSON type: {json_type}")
+def _internal_map_json_type_to_spark_type(json_snippet): 
+    value = json_snippet
+    field_type = None 
+    if 'type' in json_snippet:
         
-    return field_type
+        if value['type'] == 'string':
+            field_type = _internal_convert_json_string(value)
+        elif value['type'] == 'boolean':
+            field_type = BooleanType() 
+        elif value['type'] == 'integer':
+            # This is tricky as there are many Spark types that can be mapped to an int
+            field_type = _internal_convert_json_int(value)
+        elif value['type'] == 'number':
+            # This is also tricky as there are many Spark types that can be mapped to a number
+            field_type = _internal_convert_json_number(value)
+        elif value['type'] == 'array':
+            if 'items' in value:
+                items_schemas = value['items']
+                
+                # An array can have a single type or an array of types
+                if isinstance(items_schemas, dict):
+                    # put it into list
+                    items_schemas = [items_schemas]
+                    print("type items_schemas: ", type(items_schemas))
+                
+                # Check for size
+                if len(items_schemas) < 1:
+                    raise Exception("Expected a least one type definition in an array")
+                
+                # Loop over item schemas
+                for item_schema in items_schemas:
+                    if item_schema['type'] == 'object':
+                        field_type = ArrayType(StructType(map_json_schema_to_spark_schema(item_schema).fields))
+                    else:
+                        field_type = ArrayType(_internal_map_json_type_to_spark_type(item_schema))
+                        #field_type = ArrayType(map_json_type_to_spark_type(item_schema))
+        elif value['type'] == 'object':
+            field_type = StructType(map_json_schema_to_spark_schema(value).fields)
+        elif value['type'] == 'null':
+            field_type = NullType()
+        elif value['type'] == 'any':
+            field_type = StringType()
+        else:
+            raise ValueError(f"Invalid JSON type: {value['type']}")
+    
+    # anyOf is not a type but also a keyword
+    elif 'anyOf' in value:
+        # A constant can hold all sorts of data types, even complex structures. The savest Spark data type is a StringType.
+        field_type = StringType()
+    # const is not a type but also a keyword
+    elif 'const' in value:
+        # A constant can hold all sorts of data types, even complex structures. The savest Spark data type is a StringType.
+        field_type = StringType()
+        
+    return field_type    
+    
 
-def convert_json_string(value):
+def _internal_convert_json_string(value):
     field_type =  StringType()
     
     if 'format' in value: # Need to check whether attribute is present first
@@ -110,7 +92,7 @@ def convert_json_string(value):
     return field_type
     
 
-def convert_json_int(value):
+def _internal_convert_json_int(value):
     # This is tricky as there are many Spark types that can be mapped to an int
     # 
     # ByteType: Represents 1-byte signed integer numbers. The range of numbers is from -128 to 127.
@@ -123,7 +105,7 @@ def convert_json_int(value):
     # For instance 20230214110547 fits in a json int, but not in a Spark IntegerType
     #
     field_type = LongType()
-    determined_range = determine_inclusive_range(value)
+    determined_range = _internal_determine_inclusive_range(value)
     if (determined_range["defined"]):
         # max value of range is exclusive              
         byte_type_range = range(-128, 127 + 1)
@@ -139,7 +121,7 @@ def convert_json_int(value):
             
     return field_type
 
-def convert_json_number(value):
+def _internal_convert_json_number(value):
     # This is also tricky as there are many Spark types that can be mapped to a number
     #
     # - FloatType: Represents 4-byte single-precision floating point numbers.
@@ -156,7 +138,7 @@ def convert_json_number(value):
     # There is no way to know to purpose of the value. To be on the safe side use DoubleType
     return field_type
     
-def determine_inclusive_range(value):
+def _internal_determine_inclusive_range(value):
     range = {"min": None, "max": None, "defined": False}
     
     if "minimum" in value:

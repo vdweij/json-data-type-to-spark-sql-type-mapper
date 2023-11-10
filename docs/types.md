@@ -64,13 +64,14 @@ A JSON array can hold a single type or a set of types. It is possible to nest ar
 - It is possible to define anyOf idicating which types are allowed
 - It is possible to define a structure with a specific order, size and types
 
-JSON arrays can be represented using the **ArrayType** in Spark SQL. It is used to represent arrays or lists of elements. The elements within the array can have various data types, and Spark provides flexibility in handling arrays of different types.
+JSON arrays can be represented using the **ArrayType** in Spark SQL of a single type. Mixing types is not possible. 
+
 
 ## Object
 In JSON an `object` has fields with a name and a corresponding data type. It is possible to nest objects in objects to create complex representations. The type can be mapped to a **StructType** in Spark SQL that is also capable of containing fields of various types.
 
 ## Null
-In JSON, the null value represents the absence of a value. It is used to indicate that a JSON property or element does not have a value or is undefined. In case present the mapper converts it into a **NullType**.
+In JSON, the null value represents the absence of a value. It is used to indicate that a JSON property or element does not have a value or is undefined. In case present the mapper converts it into a **NullType**. THIS NEEDS WORK!!!
 
 ## Any
 In JSON, the any type indicates an absence of constraints on the data type. The closest equivalent in Spark to an "any" type would be to use a more permissive data type like **StringType**. 
@@ -81,6 +82,9 @@ In JSON, the `anyOf` keyword indicates that the value must match any of the give
 
 ## Const
 Although not a JSON type, the keyword `const` specifies a constant property's value that the corresponing JSON must exactly match. It can contain all sorts of value types, even complex data type, hence converting it to **StringType** is the safest option.
+
+# In progress
+Whether a field is required
 
 # Unsupported (yet)
 
