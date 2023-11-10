@@ -58,8 +58,14 @@ Also the `exclusiveMinimum` and `exclusiveMaximum` keywords are supported that c
 A JSON number could be converted both in a **FloatType** and a **DoubleType** or even into a **DecimalType**. A JSON schema however lacks the possibility to define the purpose of the number in a standard manner, hence for safety it is converted into a **DoubleType**.
 
 ## Array
+A JSON array can hold a single type or a set of types. It is possible to nest arrays in arrays.
+
+- It is possible to define a range with minItems and maxItems
+- It is possible to define anyOf idicating which types are allowed
+- It is possible to define a structure with a specific order and types
 
 ## Object
+In JSON an `object` has fields with a name and a corresponding data type. It is possible to nest objects in objects to create complex representations. The type can be mapped to a **StructType** in Spark SQL that is also capable of containing fields of various types.
 
 ## Null
 In JSON, the null value represents the absence of a value. It is used to indicate that a JSON property or element does not have a value or is undefined. In case present the mapper converts it into a **NullType**.
