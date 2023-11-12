@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main  # Change this to your main branch name
+      - dev
 
 jobs:
   build:
@@ -33,11 +34,26 @@ jobs:
       - name: Build wheel distribution
         run: python setup.py bdist_wheel
 
-#      - name: Upload to PyPI
+      - name: Set Environment Variables
+        run: |
+          if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
+            export TWINE_UPLOAD_CMD="upload dist/*"
+            export TWINE_USERNAME=${{ env.PYPI_USERNAME }}
+            export TWINE_PASSWORD=${{ secrets.PYPI_PASSWORD }}
+          elif [[ ${{ github.ref }} == 'refs/heads/dev/'* ]]; then
+            export TWINE_UPLOAD_CMD="--repository-url https://test.pypi.org/legacy/ dist/*"
+            export TWINE_USERNAME=${{ env.TESTPYPI_USERNAME }}
+            export TWINE_PASSWORD=${{ secrets.TESTPYPI_PASSWORD }}
+          else
+            echo "Unknown branch"
+          fi
+
+      - name: Upload to PyPI
 #        if: success()
-#        run: |
-#          pip install twine
+        run: |
+          pip install twine
+          echo "Uploading module"
+          twine upload  
 #          twine upload dist/*
-#        env:
-#          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-#          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+#          twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+\
