@@ -53,6 +53,6 @@ jobs:
         run: |
           pip install twine
           echo "Uploading module"
-          twine upload  
+          twine upload ${{ TWINE_UPLOAD_CMD }} 
 #          twine upload dist/*
 #          twine upload --repository-url https://test.pypi.org/legacy/ dist/*
