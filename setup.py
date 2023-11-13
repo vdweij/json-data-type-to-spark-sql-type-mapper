@@ -9,10 +9,16 @@ version_postfix = '.dev.' + timestamp
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
 setup(
     name='json2spark_mapper',
     version='0.0.1' + version_postfix,
     description='Maps JSON schema types to Spark SQL types',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url='https://github.com/vdweij/json-data-type-to-spark-sql-type-mapper'
     #author='',
     #author_email='',
     packages=['json2spark_mapper'],

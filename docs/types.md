@@ -66,6 +66,7 @@ A JSON array can hold a single type or a set of types. It is possible to nest ar
 
 JSON arrays can be represented using the **ArrayType** in Spark SQL of a single type. Mixing types is not possible. 
 
+**WARNING!** JSON arrays with different types is not supported properly at the moment.
 
 ## Object
 In JSON an `object` has fields with a name and a corresponding data type. It is possible to nest objects in objects to create complex representations. The type can be mapped to a **StructType** in Spark SQL that is also capable of containing fields of various types.
@@ -84,7 +85,8 @@ In JSON, the `anyOf` keyword indicates that the value must match any of the give
 Although not a JSON type, the keyword `const` specifies a constant property's value that the corresponing JSON must exactly match. It can contain all sorts of value types, even complex data type, hence converting it to **StringType** is the safest option.
 
 # In progress
-Whether a field is required
+- Json Array containing multiple types
+- Whether a field is required
 
 # Unsupported (yet)
 
