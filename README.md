@@ -20,8 +20,9 @@ Not yet available. Working on it.
 #### Install from TestPyPI
 
 ```bash
-pip install --index-url https://test.pypi.org/simple/ json2spark-mapper
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/  json2spark-mapper
 ```
+Note: because de required package pyspark is not available in TestPyPI the `extra-index-url` is needed.
 
 #### Install from source code
 - checkout the project
