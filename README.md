@@ -17,6 +17,12 @@ First make sure you install the module into your environment. There are various 
 #### Install from PyPI
 Not yet available. Working on it.
 
+#### Install from TestPyPI
+
+```bash
+pip install --index-url https://test.pypi.org/simple/ json2spark-mapper
+```
+
 #### Install from source code
 - checkout the project
 - navigate to the root directory
