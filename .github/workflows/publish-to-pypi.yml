@@ -40,12 +40,12 @@ jobs:
             echo "TWINE_UPLOAD_CMD=upload dist/*" >> "$GITHUB_ENV"
             echo "TWINE_USERNAME=${{ env.PYPI_USERNAME }}" >> "$GITHUB_ENV"
             echo "TWINE_PASSWORD=${{ secrets.PYPI_PASSWORD }}" >> "$GITHUB_ENV"
-          elif [[ ${{ github.ref }} == 'refs/heads/dev/'* ]]; then
+          elif [[ ${{ github.ref }} == 'refs/heads/dev/' ]]; then
             echo "TWINE_UPLOAD_CMD="--repository-url https://test.pypi.org/legacy/ dist/*"" >> "$GITHUB_ENV"
             echo "TWINE_USERNAME=${{ env.TESTPYPI_USERNAME }}" >> "$GITHUB_ENV"
             echo "TWINE_PASSWORD=${{ secrets.TESTPYPI_PASSWORD }}" >> "$GITHUB_ENV"
           else
-            echo "Unknown branch"
+            echo "Unknown branch: ${{ github.ref }}"
           fi
 
       - name: Upload to PyPI
