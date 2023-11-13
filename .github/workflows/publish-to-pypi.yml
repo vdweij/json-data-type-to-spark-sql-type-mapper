@@ -37,13 +37,13 @@ jobs:
       - name: Set Environment Variables
         run: |
           if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
-            export TWINE_UPLOAD_CMD="upload dist/*"
-            export TWINE_USERNAME=${{ env.PYPI_USERNAME }}
-            export TWINE_PASSWORD=${{ secrets.PYPI_PASSWORD }}
+            echo "TWINE_UPLOAD_CMD=upload dist/*" >> "$GITHUB_ENV"
+            echo "TWINE_USERNAME=${{ env.PYPI_USERNAME }}" >> "$GITHUB_ENV"
+            echo "TWINE_PASSWORD=${{ secrets.PYPI_PASSWORD }}" >> "$GITHUB_ENV"
           elif [[ ${{ github.ref }} == 'refs/heads/dev/'* ]]; then
-            export TWINE_UPLOAD_CMD="--repository-url https://test.pypi.org/legacy/ dist/*"
-            export TWINE_USERNAME=${{ env.TESTPYPI_USERNAME }}
-            export TWINE_PASSWORD=${{ secrets.TESTPYPI_PASSWORD }}
+            echo "TWINE_UPLOAD_CMD="--repository-url https://test.pypi.org/legacy/ dist/*"" >> "$GITHUB_ENV"
+            echo "TWINE_USERNAME=${{ env.TESTPYPI_USERNAME }}" >> "$GITHUB_ENV"
+            echo "TWINE_PASSWORD=${{ secrets.TESTPYPI_PASSWORD }}" >> "$GITHUB_ENV"
           else
             echo "Unknown branch"
           fi
