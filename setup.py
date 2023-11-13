@@ -18,8 +18,8 @@ setup(
     description='Maps JSON schema types to Spark SQL types',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url='https://github.com/vdweij/json-data-type-to-spark-sql-type-mapper'
-    #author='',
+    url='https://github.com/vdweij/json-data-type-to-spark-sql-type-mapper',
+    author='AvdW',
     #author_email='',
     packages=['json2spark_mapper'],
     install_requires=requirements,  # Include the requirements from the file
