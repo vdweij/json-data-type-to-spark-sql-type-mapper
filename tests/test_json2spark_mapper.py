@@ -4,7 +4,7 @@ from pyspark.sql.types import StructType, StructField, ArrayType, ByteType, Shor
 import sys
 sys.path.append('.')
 
-from json2spark_mapper import json2spark_mapper
+from json2spark_mapper.schema_mapper import from_json_to_spark
 
 class TestMappings(unittest.TestCase):
 
@@ -13,26 +13,26 @@ class TestMappings(unittest.TestCase):
         schema = None
         with self.assertRaises(TypeError):
             # this should trow an error
-            json2spark_mapper.map_json_schema_to_spark_schema(schema)       
+            from_json_to_spark(schema)       
        
     def test_no_json_input(self):
         print("starting test no json input")
         schema = ""
         with self.assertRaises(TypeError):
             # this should trow an error
-            json2spark_mapper.map_json_schema_to_spark_schema(schema)
+            from_json_to_spark(schema)
             
     def test_empty_json_input(self):
         print("starting test empty json input")
         schema = "{}"
         with self.assertRaises(TypeError):
             # this should trow an error
-            json2spark_mapper.map_json_schema_to_spark_schema(schema)
+            from_json_to_spark(schema)
         
     def test_empty_schema(self):
         with open("tests/empty-schema.json") as schema_file:
             schema = json.load(schema_file)
-        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        struct_type = from_json_to_spark(schema)
         # expects an StructType with an empty field array
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 0)
@@ -40,7 +40,7 @@ class TestMappings(unittest.TestCase):
     def test_simple_schema(self):
         with open("tests/simple-schema.json") as schema_file:
             schema = json.load(schema_file)
-        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 3
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 3)
@@ -48,7 +48,7 @@ class TestMappings(unittest.TestCase):
     def test_str_type_schema(self):
         with open("tests/string-type-schema.json") as schema_file:
             schema = json.load(schema_file)
-        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 1)
@@ -57,7 +57,7 @@ class TestMappings(unittest.TestCase):
     def test_str_datetime_type_schema(self):
         with open("tests/string-datetime-type-schema.json") as schema_file:
             schema = json.load(schema_file)
-        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 3
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 3)
@@ -68,7 +68,7 @@ class TestMappings(unittest.TestCase):
     def test_bool_type_schema(self):
         with open("tests/bool-type-schema.json") as schema_file:
             schema = json.load(schema_file)
-        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 1)
@@ -77,7 +77,7 @@ class TestMappings(unittest.TestCase):
     def test_int_type_schema(self):
         with open("tests/int-type-schema.json") as schema_file:
             schema = json.load(schema_file)
-        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 5
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 5)
@@ -90,7 +90,7 @@ class TestMappings(unittest.TestCase):
     def test_num_type_schema(self):
         with open("tests/num-type-schema.json") as schema_file:
             schema = json.load(schema_file)
-        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 2
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 2)
@@ -100,7 +100,7 @@ class TestMappings(unittest.TestCase):
     def test_null_type_schema(self):
         with open("tests/null-type-schema.json") as schema_file:
             schema = json.load(schema_file)
-        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 1)
@@ -109,7 +109,7 @@ class TestMappings(unittest.TestCase):
     def test_any_type_schema(self):
         with open("tests/any-type-schema.json") as schema_file:
             schema = json.load(schema_file)
-        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 1)
@@ -118,7 +118,7 @@ class TestMappings(unittest.TestCase):
     def test_anyof_type_schema(self):
         with open("tests/anyof-type-schema.json") as schema_file:
             schema = json.load(schema_file)
-        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 1)
@@ -127,7 +127,7 @@ class TestMappings(unittest.TestCase):
     def test_const_type_schema(self):
         with open("tests/const-type-schema.json") as schema_file:
             schema = json.load(schema_file)
-        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 1)
@@ -143,7 +143,7 @@ class TestMappings(unittest.TestCase):
     def test_simple_object_type_schema(self):
         with open("tests/simple-object-type-schema.json") as schema_file:
             schema = json.load(schema_file)
-        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 1)
@@ -162,7 +162,7 @@ class TestMappings(unittest.TestCase):
     def test_complex_object_type_schema(self):
         with open("tests/complex-object-type-schema.json") as schema_file:
             schema = json.load(schema_file)
-        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 2)
@@ -182,7 +182,7 @@ class TestMappings(unittest.TestCase):
     def test_simple_array_type_schema(self):
         with open("tests/simple-array-type-schema.json") as schema_file:
             schema = json.load(schema_file)
-        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 1)
@@ -196,7 +196,7 @@ class TestMappings(unittest.TestCase):
     def test_complex_array_type_schema(self):
         with open("tests/complex-array-type-schema.json") as schema_file:
             schema = json.load(schema_file)
-        struct_type = json2spark_mapper.map_json_schema_to_spark_schema(schema)
+        struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 1)

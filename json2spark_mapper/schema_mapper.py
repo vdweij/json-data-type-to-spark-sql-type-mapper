@@ -1,11 +1,11 @@
 import json
 from pyspark.sql.types import StructType, StructField, ArrayType, ByteType, ShortType, IntegerType, LongType, FloatType, DoubleType, StringType, BooleanType, TimestampType, DateType, NullType
 
-def map_json_schema_to_spark_schema(schema) -> StructType:
+def from_json_to_spark(schema) -> StructType:
     properties = schema['properties']
     fields = []
     for key, value in properties.items():
-        field_type = _internal_map_json_type_to_spark_type(value)
+        field_type = _map_json_type_to_spark_type(value)
         
         nullable = True
         
@@ -23,21 +23,21 @@ def map_json_schema_to_spark_schema(schema) -> StructType:
     return StructType(fields)
 
 
-def _internal_map_json_type_to_spark_type(json_snippet): 
+def _map_json_type_to_spark_type(json_snippet): 
     value = json_snippet
     field_type = None 
     if 'type' in json_snippet:
         
         if value['type'] == 'string':
-            field_type = _internal_convert_json_string(value)
+            field_type = _convert_json_string(value)
         elif value['type'] == 'boolean':
             field_type = BooleanType() 
         elif value['type'] == 'integer':
             # This is tricky as there are many Spark types that can be mapped to an int
-            field_type = _internal_convert_json_int(value)
+            field_type = _convert_json_int(value)
         elif value['type'] == 'number':
             # This is also tricky as there are many Spark types that can be mapped to a number
-            field_type = _internal_convert_json_number(value)
+            field_type = _convert_json_number(value)
         elif value['type'] == 'array':
             if 'items' in value:
                 items_schemas = value['items']
@@ -55,14 +55,14 @@ def _internal_map_json_type_to_spark_type(json_snippet):
                 # Loop over item schemas
                 for item_schema in items_schemas:
                     if item_schema['type'] == 'object':
-                        field_type = ArrayType(StructType(map_json_schema_to_spark_schema(item_schema).fields))
+                        field_type = ArrayType(StructType(from_json_to_spark(item_schema).fields))
                     else:
-                        field_type = ArrayType(_internal_map_json_type_to_spark_type(item_schema))
+                        field_type = ArrayType(_map_json_type_to_spark_type(item_schema))
                 
                 # TODO: fix array with multiple types
                 
         elif value['type'] == 'object':
-            field_type = StructType(map_json_schema_to_spark_schema(value).fields)
+            field_type = StructType(from_json_to_spark(value).fields)
         elif value['type'] == 'null':
             field_type = NullType()
         elif value['type'] == 'any':
@@ -82,7 +82,7 @@ def _internal_map_json_type_to_spark_type(json_snippet):
     return field_type    
     
 
-def _internal_convert_json_string(value):
+def _convert_json_string(value):
     field_type =  StringType()
     
     if 'format' in value: # Need to check whether attribute is present first
@@ -94,7 +94,7 @@ def _internal_convert_json_string(value):
     return field_type
     
 
-def _internal_convert_json_int(value):
+def _convert_json_int(value):
     # This is tricky as there are many Spark types that can be mapped to an int
     # 
     # ByteType: Represents 1-byte signed integer numbers. The range of numbers is from -128 to 127.
@@ -107,7 +107,7 @@ def _internal_convert_json_int(value):
     # For instance 20230214110547 fits in a json int, but not in a Spark IntegerType
     #
     field_type = LongType()
-    determined_range = _internal_determine_inclusive_range(value)
+    determined_range = _determine_inclusive_range(value)
     if (determined_range["defined"]):
         # max value of range is exclusive              
         byte_type_range = range(-128, 127 + 1)
@@ -123,7 +123,7 @@ def _internal_convert_json_int(value):
             
     return field_type
 
-def _internal_convert_json_number(value):
+def _convert_json_number(value):
     # This is also tricky as there are many Spark types that can be mapped to a number
     #
     # - FloatType: Represents 4-byte single-precision floating point numbers.
@@ -140,7 +140,7 @@ def _internal_convert_json_number(value):
     # There is no way to know to purpose of the value. To be on the safe side use DoubleType
     return field_type
     
-def _internal_determine_inclusive_range(value):
+def _determine_inclusive_range(value):
     range = {"min": None, "max": None, "defined": False}
     
     if "minimum" in value:

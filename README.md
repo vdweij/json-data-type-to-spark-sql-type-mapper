@@ -31,12 +31,16 @@ Note: because de required package pyspark is not available in TestPyPI the `extr
 
 ### Import module
 
+```python
+from json2spark_mapper.schema_mapper import from_json_to_spark
+```
+
 ### Call mapping function
 
 ```python
 with open("path-to-your-schema.json") as schema_file:
     json_schema = json.load(schema_file)
-struct_type = json2spark_mapper.map_json_schema_to_spark_schema(json_schema)
+struct_type = from_json_to_spark(json_schema)
 ```
 
 ### Trouble shooting
