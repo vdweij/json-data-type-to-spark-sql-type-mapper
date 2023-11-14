@@ -52,7 +52,9 @@ class TestMappings(unittest.TestCase):
         # expects an StructType with a field array of length 1
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 1)
-        self.assertEqual((struct_type.fields[struct_type.fieldNames().index("stringValue")]).dataType, StringType())
+        stringValueType = struct_type.fields[struct_type.fieldNames().index("stringValue")]
+        self.assertEqual(stringValueType.dataType, StringType())
+        self.assertTrue(stringValueType.nullable)
         
     def test_str_datetime_type_schema(self):
         with open("tests/string-datetime-type-schema.json") as schema_file:
@@ -206,6 +208,42 @@ class TestMappings(unittest.TestCase):
         # Check elementType properties
         # TODO: fix test
         # self.assertEqual(complexArray.dataType.elementType, DoubleType())
+        
+    # test required fields
+    def test_required_simple_fields(self):
+        with open("tests/required-simple-fields-schema.json") as schema_file:
+            schema = json.load(schema_file)
+        struct_type = from_json_to_spark(schema)
+        # expects an StructType with a field array of length 4
+        self.assertIsInstance(struct_type, StructType)
+        self.assertTrue(len(struct_type.fields) == 4)
+        
+        stringValueType = struct_type.fields[struct_type.fieldNames().index("stringValue")]
+        self.assertEqual(stringValueType.dataType, StringType())
+        self.assertFalse(stringValueType.nullable)
+        
+        numberValueType = struct_type.fields[struct_type.fieldNames().index("numberValue")]
+        self.assertEqual(numberValueType.dataType, DoubleType())
+        self.assertFalse(numberValueType.nullable)
+        
+        integerValueType = struct_type.fields[struct_type.fieldNames().index("integerValue")]
+        self.assertEqual(integerValueType.dataType, LongType())
+        self.assertFalse(integerValueType.nullable)
+        
+        booleanValueType = struct_type.fields[struct_type.fieldNames().index("booleanValue")]
+        self.assertEqual(booleanValueType.dataType, BooleanType())
+        self.assertFalse(booleanValueType.nullable)
+    
+    # test required fields
+    def test_required_complex_fields(self):
+        with open("tests/required-complex-fields-schema.json") as schema_file:
+            schema = json.load(schema_file)
+        struct_type = from_json_to_spark(schema)
+        # expects an StructType with a field array of length 2
+        self.assertIsInstance(struct_type, StructType)
+        self.assertTrue(len(struct_type.fields) == 2)
+        
+        # TODO: complete
         
 if __name__ == '__main__':
     unittest.main()

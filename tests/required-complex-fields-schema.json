@@ -1,0 +1,27 @@
+{
+    "type": "object",
+    "properties": {
+      "arrayValue": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "objectValue": {
+        "type": "object",
+        "properties": {
+          "nestedString": {
+            "type": "string"
+          },
+          "nestedNumber": {
+            "type": "number"
+          }
+        },
+        "required": ["nestedString", "nestedNumber"],
+        "additionalProperties": false
+      }
+    },
+    "required": ["arrayValue", "objectValue"],
+    "additionalProperties": false
+  }
+  
