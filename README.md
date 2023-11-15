@@ -31,6 +31,8 @@ Note: because de required package pyspark is not available in TestPyPI the `extr
 
 ### Import module
 
+In order to make the mapper function `from_json_to_spark` available in your Python file, use the following import statement:
+
 ```python
 from json2spark_mapper.schema_mapper import from_json_to_spark
 ```

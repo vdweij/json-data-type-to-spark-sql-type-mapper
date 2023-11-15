@@ -4,20 +4,29 @@
       "arrayValue": {
         "type": "array",
         "items": {
-          "type": "string"
+          "type": "object",
+          "properties": {
+            "requiredStringValue": {
+              "type": "string"
+            },
+            "optionalStringValue": {
+              "type": "string"
+            }
+          },
+          "required": ["requiredStringValue"]
         }
       },
       "objectValue": {
         "type": "object",
         "properties": {
-          "nestedString": {
+          "nestedStringValue": {
             "type": "string"
           },
-          "nestedNumber": {
+          "nestedNumberValue": {
             "type": "number"
           }
         },
-        "required": ["nestedString", "nestedNumber"],
+        "required": ["nestedStringValue", "nestedNumberValue"],
         "additionalProperties": false
       }
     },
