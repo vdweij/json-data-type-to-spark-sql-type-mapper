@@ -58,15 +58,54 @@ Also the `exclusiveMinimum` and `exclusiveMaximum` keywords are supported that c
 A JSON number could be converted both in a **FloatType** and a **DoubleType** or even into a **DecimalType**. A JSON schema however lacks the possibility to define the purpose of the number in a standard manner, hence for safety it is converted into a **DoubleType**.
 
 ## Array
-A JSON array can hold a single type or a set of types. It is possible to nest arrays in arrays.
 
-- It is possible to define a range with minItems and maxItems
-- It is possible to define anyOf idicating which types are allowed
-- It is possible to define a structure with a specific order, size and types
+A JSON array can hold elements of a single type which can be perfectly matched to the Spark **ArrayType** with the corresponding type elements.
 
-JSON arrays can be represented using the **ArrayType** in Spark SQL of a single type. Mixing types is not possible. 
+```json
+{
+  "type": "array",
+  "items": {
+    "type": "integer"
+  }
+}
+```
 
-**WARNING!** JSON arrays with different types is not supported properly at the moment.
+It can however also hold multiple types and behaving like a [tuple](https://docs.python.org/3/library/stdtypes.html?highlight=tuple#tuple). In that case the type is mapped to a **StructTYpe** an the field names will not be explicitly defined. Spark will assign default field names. The default names follow a pattern of "col1," "col2," and so on, based on the index of the field within the schema. 
+
+```json
+{
+  "type": "array",
+  "items": [
+    { "type": "integer" },
+    { "type": "string" },
+    { "type": "boolean" }
+  ]
+}
+```
+TODO: check nullable tuple fields
+
+### Additional items
+JSON has an `additionalItems` property that could be used to specify whether additional items are allowed having any structure. It can only be specified for arrays that hold tuple structures and the default value is set to 'true'. JSON arrays that are specified like this cannot be converted because types cannot be quesed, hence arrays will be converted to a **StringType**.
+
+### Size
+JSON provides the ability to specify a `minItems` and `maxItems`. There is no equal functionality in Spark and as such this range definitions are ignored.
+
+### Unique values
+The `uniqueItems` property in JSON indicated that an array can only contain unique values. The Spark **ArrayType** doesn't provide a direct constraint for unique values and as such this property is ignored.
+
+### Contains
+The `contains` property indicates that an array should at least contain an element of a specific type. JSON arrays with this property will be converted to an **ArrayType** with **StringType** elements.
+
+```json
+{
+  "type": "array",
+  "contains": {
+    "type": "number"
+  }
+}
+```
+
+**WARNING!** JSON arrays are not supported properly at the moment.
 
 ## Object
 In JSON an `object` has fields with a name and a corresponding data type. It is possible to nest objects in objects to create complex representations. The type can be mapped to a **StructType** in Spark SQL that is also capable of containing fields of various types.
@@ -89,6 +128,7 @@ Although not a JSON type, the keyword `const` specifies a constant property's va
 
 # Unsupported (yet)
 
+- enum
 - not (used for values)
 - allOf (used for a set of required properties)
 - oneOf (used for matching values)

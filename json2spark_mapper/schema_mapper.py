@@ -39,28 +39,7 @@ def _map_json_type_to_spark_type(json_snippet):
             # This is also tricky as there are many Spark types that can be mapped to a number
             field_type = _convert_json_number(value)
         elif value['type'] == 'array':
-            if 'items' in value:
-                items_schemas = value['items']
-                
-                # An array can have a single type or an array of types
-                if isinstance(items_schemas, dict):
-                    # put it into list
-                    items_schemas = [items_schemas]
-                    print("type items_schemas: ", type(items_schemas))
-                
-                # Check for size
-                if len(items_schemas) < 1:
-                    raise Exception("Expected a least one type definition in an array")
-                
-                # Loop over item schemas
-                for item_schema in items_schemas:
-                    if item_schema['type'] == 'object':
-                        field_type = ArrayType(StructType(from_json_to_spark(item_schema).fields))
-                    else:
-                        field_type = ArrayType(_map_json_type_to_spark_type(item_schema))
-                
-                # TODO: fix array with multiple types
-                
+            field_type = _convert_json_array(value)
         elif value['type'] == 'object':
             field_type = StructType(from_json_to_spark(value).fields)
         elif value['type'] == 'null':
@@ -156,3 +135,58 @@ def _determine_inclusive_range(value):
         range["defined"] = True
 
     return range
+
+def _convert_json_array(value):
+    # JSON arrays com in two forms; the first is a regular array containing a collections of eleemnts of a specific type.
+    # The second is the tuple in which elements at different indexes can have different types.
+    #
+    # The regular array maps perfectly to the Spark ArrayType. The Tuple coudld be represented by a 
+    # StructType with 'nameless' fields. Spark does create names following a pattern of "col1," "col2," and so on,
+    # based on the index of the field within the schema. 
+    #
+    #
+    
+    if 'items' in value:
+        items_schemas = value['items']
+        
+        # Check for a dictionary or list (array) of types
+        if isinstance(items_schemas, dict):
+            # This is regular array containing a single type
+            if items_schemas['type'] == 'object':
+                field_type = ArrayType(StructType(from_json_to_spark(items_schemas).fields))
+            else:
+                field_type = ArrayType(_map_json_type_to_spark_type(items_schemas))
+        elif isinstance(items_schemas, list):    
+            # This is an array containing a tuple
+            
+            # Check whether it has a additionalItems property
+            if 'additionalItems' in value and value['additionalItems'] == False:
+                # Loop over item schemas and store type as StructType field
+                struct_type_fields = []
+                for item_schema in items_schemas:
+                    if item_schema['type'] == 'object':
+                        tuple_field_type= StructType(from_json_to_spark(item_schema).fields)
+                    else:
+                        tuple_field_type =_map_json_type_to_spark_type(item_schema)
+                        
+                    # TODO: check nullable
+                    nullable = True
+                    field_name = "" # Spark will assign col1, col2 etc
+                    struct_type_fields.append(StructField(field_name, tuple_field_type, nullable))        
+                field_type = StructType(struct_type_fields)
+            else:
+                # This tuple can contain more types than specified. It's onnly safe to return a string based array
+                field_type = ArrayType(StringType())
+        else :
+            raise Exception(f"Expected a least one type definition in an array: {value}")
+
+    elif 'contains' in value:
+        # JSON array is can contain whatever types, but should at least contain a specific type. 
+        # This type is irrelevant because all other types need to fit the array. The only option
+        # is to map it to a string based array.
+        field_type = ArrayType(StringType())
+    else:
+        # Unable to map array type, or should a string based array be returned instead?
+        raise ValueError(f"Invalid array definition: {value}")
+    
+    return field_type

@@ -204,6 +204,40 @@ class TestMappings(unittest.TestCase):
         self.assertEqual(simple_array.dataType.typeName, ArrayType(elementType=StringType()).typeName) # ArrayType needs an init paramter
         # Check elementType properties
         self.assertEqual(simple_array.dataType.elementType, DoubleType())
+        
+    # test array containg specific type
+    def test_array_contains_type_schema(self):
+        with open("tests/array-contains-type-schema.json") as schema_file:
+            schema = json.load(schema_file)
+        struct_type = from_json_to_spark(schema)
+        # expects an StructType with a field array of length 1
+        self.assertIsInstance(struct_type, StructType)
+        self.assertTrue(len(struct_type.fields) == 1)
+        # compare type name, because instances will have different content
+        simple_array = struct_type.fields[struct_type.fieldNames().index("arrayValue")]
+        self.assertEqual(simple_array.dataType.typeName, ArrayType(elementType=StringType()).typeName) # ArrayType needs an init paramter
+        # Check elementType properties
+        self.assertEqual(simple_array.dataType.elementType, StringType())
+        
+    # test tuple array that does not allow additional items
+    def test_array_no_aditional_items_type_schema(self):
+        with open("tests/array-no-additional-items-type-schema.json") as schema_file:
+            schema = json.load(schema_file)
+        struct_type = from_json_to_spark(schema)
+        # expects an StructType with a field array of length 1
+        self.assertIsInstance(struct_type, StructType)
+        self.assertTrue(len(struct_type.fields) == 1)
+        # compare type name, because instances will have different content
+        simple_tuple = struct_type.fields[struct_type.fieldNames().index("arrayValue")]
+        self.assertEqual(simple_tuple.dataType.typeName, StructType().typeName)
+        self.assertTrue(simple_tuple.nullable)
+        
+        tuple_fields = simple_tuple.dataType
+        # Check nested properties
+        self.assertTrue(len(tuple_fields.fields) == 2)
+        self.assertEqual(tuple_fields[0].dataType, LongType())
+        self.assertEqual(tuple_fields[1].dataType, StringType())
+    
     
     # test complex array
     def test_complex_array_type_schema(self):
