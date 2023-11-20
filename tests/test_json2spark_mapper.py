@@ -18,8 +18,6 @@ from pyspark.sql.types import (
 
 from json2spark_mapper.schema_mapper import from_json_to_spark
 
-# sys.path.append(".")
-
 
 class TestMappings(unittest.TestCase):
     def test_no_input(self):
