@@ -33,4 +33,3 @@
     "required": ["arrayValue", "objectValue"],
     "additionalProperties": false
   }
-  
