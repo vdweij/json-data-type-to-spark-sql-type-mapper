@@ -1,6 +1,6 @@
 [tool.pytest.ini_options]
 addopts = """
-./src/tests/
+./tests/
 --cov-report term-missing \
 --cov json2spark_mapper -ra"""
 
