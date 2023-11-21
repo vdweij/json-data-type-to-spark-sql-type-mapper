@@ -334,6 +334,44 @@ class TestMappings(unittest.TestCase):
         # Check elementType properties
         self.assertEqual(simple_array.dataType.elementType, DoubleType())
 
+    # test simple array with multiple types
+    def test_simple_array_multiple_types_schema(self):
+        with open("tests/simple-array-multiple-types-schema.json") as schema_file:
+            schema = json.load(schema_file)
+        struct_type = from_json_to_spark(schema)
+        # expects an StructType with a field array of length 1
+        self.assertIsInstance(struct_type, StructType)
+        self.assertTrue(len(struct_type.fields) == 1)
+        # compare type name, because instances will have different content
+        simple_array = struct_type.fields[
+            struct_type.fieldNames().index("simpleArrayValue")
+        ]
+        self.assertEqual(
+            simple_array.dataType.typeName, ArrayType(elementType=StringType()).typeName
+        )  # ArrayType needs an init paramter
+        # Check elementType properties
+        self.assertEqual(simple_array.dataType.elementType, StringType())
+
+    # test simple integer array with null type
+    def test_simple_integer_array_with_null_type_schema(self):
+        with open(
+            "tests/simple-integer-array-with null-type-schema.json"
+        ) as schema_file:
+            schema = json.load(schema_file)
+        struct_type = from_json_to_spark(schema)
+        # expects an StructType with a field array of length 1
+        self.assertIsInstance(struct_type, StructType)
+        self.assertTrue(len(struct_type.fields) == 1)
+        # compare type name, because instances will have different content
+        simple_array = struct_type.fields[
+            struct_type.fieldNames().index("simpleArrayValue")
+        ]
+        self.assertEqual(
+            simple_array.dataType.typeName, ArrayType(elementType=StringType()).typeName
+        )  # ArrayType needs an init paramter
+        # Check elementType properties
+        self.assertEqual(simple_array.dataType.elementType, StringType())
+
     # test array containg specific type
     def test_array_contains_type_schema(self):
         with open("tests/array-contains-type-schema.json") as schema_file:
@@ -348,6 +386,7 @@ class TestMappings(unittest.TestCase):
             simple_array.dataType.typeName, ArrayType(elementType=StringType()).typeName
         )  # ArrayType needs an init paramter
         # Check elementType properties
+        # TODO: fix this test!!!
         self.assertEqual(simple_array.dataType.elementType, StringType())
 
     # test tuple array that does not allow additional items

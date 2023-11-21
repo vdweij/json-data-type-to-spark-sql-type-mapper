@@ -65,6 +65,8 @@ def _map_json_type_to_spark_type(json_snippet):
     # anyOf is not a type but also a keyword
     elif "anyOf" in value:
         # A constant can hold all sorts of data types, even complex structures. The savest Spark data type is a StringType.
+        # TODO: in case null is the only additional type the other type could be used as field type
+        # For instance "anyOf": [{ "type": "null" }, { "type": "number" }] } could be DoubleType with an optional value.
         field_type = StringType()
     # const is not a type but also a keyword
     elif "const" in value:
@@ -162,28 +164,58 @@ def _determine_inclusive_range(value):
 
 
 def _convert_json_array(value):
-    """Convert JSON array with either equal-types or different types.
-
-    JSON arrays com in two forms; the first is a regular array containing a collections of elements of a specific type.
-    The second is the tuple in which elements at different indexes can have different types.
-
-    The regular array maps perfectly to the Spark ArrayType. The Tuple coudld be represented by a
-    StructType with 'nameless' fields. Spark does create names following a pattern of "col1," "col2," and so on,
-    based on the index of the field within the schema.
-    """
+    # Convert JSON array with either equal-types or different types.
+    #
+    # JSON arrays com in two forms; the first is a regular array containing a collections of elements of a specific type.
+    # The second is the tuple in which elements at different indexes can have different types.
+    #
+    # The regular array maps perfectly to the Spark ArrayType. The Tuple coudld be represented by a
+    # StructType with 'nameless' fields. Spark does create names following a pattern of "col1," "col2," and so on,
+    # based on the index of the field within the schema.
 
     if "items" in value:
         items_schemas = value["items"]
 
         # Check for a dictionary or list (array) of types
         if isinstance(items_schemas, dict):
-            # This is regular array containing a single type
             if items_schemas["type"] == "object":
                 field_type = ArrayType(
                     StructType(from_json_to_spark(items_schemas).fields)
                 )
-            else:
+            elif isinstance(items_schemas["type"], list):
+                # TODO: an array can also contain mutiple mixed types. In such case a string based array
+                # would be the safest unless null is the only adition type.
+                if len(items_schemas["type"]) == 0:
+                    # only an empty array as value is allowed (weird definition, but valid)
+                    field_type = ArrayType(StringType())
+                elif len(items_schemas["type"]) == 1:
+                    field_type = ArrayType(
+                        _map_json_type_to_spark_type(items_schemas["type"][0])
+                    )
+                elif len(items_schemas["type"]) == 2:
+                    if items_schemas["type"][0] == "null":
+                        field_type = ArrayType(
+                            # TODO: fix this to get propper type
+                            #    _map_json_type_to_spark_type(items_schemas["type"][1])
+                            StringType()
+                        )
+                    elif items_schemas["type"][1] == "null":
+                        
+                        field_type = ArrayType(
+                            # TODO: fix this to get propper type
+                            #    _map_json_type_to_spark_type(items_schemas["type"][0])
+                            StringType()
+                        )
+                    else:
+                        # multiple types, only safe type is a string based array
+                        field_type = ArrayType(StringType())
+                else:
+                    field_type = ArrayType(StringType())
+            elif isinstance(items_schemas["type"], str):
+                # This is regular array containing a single type
                 field_type = ArrayType(_map_json_type_to_spark_type(items_schemas))
+            else:
+                raise Exception(f"Unexpected type value: {items_schemas}")
         elif isinstance(items_schemas, list):
             # This is an array containing a tuple
 

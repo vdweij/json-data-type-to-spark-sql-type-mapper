@@ -7,7 +7,7 @@
             "items": {
                 "type": "number"
             },
-            "description": "A simple array type"
+            "description": "A simple array"
         }
     }
 }

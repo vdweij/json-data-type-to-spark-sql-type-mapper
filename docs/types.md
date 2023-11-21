@@ -70,6 +70,17 @@ A JSON array can hold elements of a single type which can be perfectly matched t
 }
 ```
 
+Multiple types are also possible
+```json
+{
+  "type": "array",
+  "items": {
+    "type": ["integer", "string"]
+  }
+}
+```
+TODO: add support
+
 It can however also hold multiple types and behaving like a [tuple](https://docs.python.org/3/library/stdtypes.html?highlight=tuple#tuple). In that case the type is mapped to a **StructTYpe** an the field names will not be explicitly defined. Spark will assign default field names. The default names follow a pattern of "col1," "col2," and so on, based on the index of the field within the schema. 
 
 ```json
@@ -83,6 +94,16 @@ It can however also hold multiple types and behaving like a [tuple](https://docs
 }
 ```
 TODO: check nullable tuple fields
+```json
+{
+  "type": "array",
+  "items": [
+    { "type": "integer" },
+    { "type": "string" },
+    { "anyOf": [{ "type": "null" }, { "type": "boolean" }] }
+  ]
+}
+```
 
 ### Additional items
 JSON has an `additionalItems` property that could be used to specify whether additional items are allowed having any structure. It can only be specified for arrays that hold tuple structures and the default value is set to 'true'. JSON arrays that are specified like this cannot be converted because types cannot be quesed, hence arrays will be converted to a **StringType**.

@@ -10,6 +10,7 @@ Spark has built in support for converting [Avro data types](https://avro.apache.
 
  - It is impossible to define a StructField as optional. Every subsequent JSON document that is processed needs to supply all the fields that were present in the initial JSON document.
  - Numeric values, both JSON integer and number, should be converted to the largest Spark type because ranges are unknown. This could lead additional storage requirements, although minimal in modern systems. When using a JSON schema that specifies ranges the right Spark type can be selected.
+ - JSON arrays can be a pain. In most positive scenario they act as a `list` containing a single type, but they could also be used to define `tuple` structures with mandatory types and additional elements of any type.
 
 This package provides a mapping function that can be used similar to how avro schemas are used whilst keeping all relevant details to create a StructType with optimal StructFields. See the [supported types](docs/types.md).
 

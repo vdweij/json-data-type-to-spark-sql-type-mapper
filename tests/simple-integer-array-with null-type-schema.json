@@ -1,0 +1,13 @@
+{
+    "title": "Simple-Integer-Array-With-Null-Type-Schema",
+    "type": "object",
+    "properties": {
+        "simpleArrayValue": {
+            "type": "array",
+            "items": {
+                "type": ["integer", "null"]
+            },
+            "description": "A simple integer array type with mutiple types"
+        }
+    }
+}
