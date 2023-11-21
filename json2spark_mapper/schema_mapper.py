@@ -178,66 +178,12 @@ def _convert_json_array(value):
 
         # Check for a dictionary or list (array) of types
         if isinstance(items_schemas, dict):
-            if items_schemas["type"] == "object":
-                field_type = ArrayType(
-                    StructType(from_json_to_spark(items_schemas).fields)
-                )
-            elif isinstance(items_schemas["type"], list):
-                # TODO: an array can also contain mutiple mixed types. In such case a string based array
-                # would be the safest unless null is the only adition type.
-                if len(items_schemas["type"]) == 0:
-                    # only an empty array as value is allowed (weird definition, but valid)
-                    field_type = ArrayType(StringType())
-                elif len(items_schemas["type"]) == 1:
-                    field_type = ArrayType(
-                        _map_json_type_to_spark_type(items_schemas["type"][0])
-                    )
-                elif len(items_schemas["type"]) == 2:
-                    if items_schemas["type"][0] == "null":
-                        field_type = ArrayType(
-                            # TODO: fix this to get propper type
-                            #    _map_json_type_to_spark_type(items_schemas["type"][1])
-                            StringType()
-                        )
-                    elif items_schemas["type"][1] == "null":
-                        
-                        field_type = ArrayType(
-                            # TODO: fix this to get propper type
-                            #    _map_json_type_to_spark_type(items_schemas["type"][0])
-                            StringType()
-                        )
-                    else:
-                        # multiple types, only safe type is a string based array
-                        field_type = ArrayType(StringType())
-                else:
-                    field_type = ArrayType(StringType())
-            elif isinstance(items_schemas["type"], str):
-                # This is regular array containing a single type
-                field_type = ArrayType(_map_json_type_to_spark_type(items_schemas))
-            else:
-                raise Exception(f"Unexpected type value: {items_schemas}")
+            field_type = _convert_regular_json_array(items_schemas)
         elif isinstance(items_schemas, list):
             # This is an array containing a tuple
-
             # Check whether it has a additionalItems property
             if "additionalItems" in value and value["additionalItems"] is False:
-                # Loop over item schemas and store type as StructType field
-                struct_type_fields = []
-                for item_schema in items_schemas:
-                    if item_schema["type"] == "object":
-                        tuple_field_type = StructType(
-                            from_json_to_spark(item_schema).fields
-                        )
-                    else:
-                        tuple_field_type = _map_json_type_to_spark_type(item_schema)
-
-                    # TODO: check nullable
-                    nullable = True
-                    field_name = ""  # Spark will assign col1, col2 etc
-                    struct_type_fields.append(
-                        StructField(field_name, tuple_field_type, nullable)
-                    )
-                field_type = StructType(struct_type_fields)
+                field_type = _convert_tuple_json_array(items_schemas)
             else:
                 # This tuple can contain more types than specified. It's onnly safe to return a string based array
                 field_type = ArrayType(StringType())
@@ -254,5 +200,63 @@ def _convert_json_array(value):
     else:
         # Unable to map array type, or should a string based array be returned instead?
         raise ValueError(f"Invalid array definition: {value}")
+
+    return field_type
+
+
+def _convert_regular_json_array(items_schemas):
+    if items_schemas["type"] == "object":
+        field_type = ArrayType(StructType(from_json_to_spark(items_schemas).fields))
+    elif isinstance(items_schemas["type"], list):
+        # TODO: an array can also contain mutiple mixed types. In such case a string based array
+        # would be the safest unless null is the only adition type.
+        if len(items_schemas["type"]) == 0:
+            # only an empty array as value is allowed (weird definition, but valid)
+            field_type = ArrayType(StringType())
+        elif len(items_schemas["type"]) == 1:
+            field_type = ArrayType(
+                _map_json_type_to_spark_type(items_schemas["type"][0])
+            )
+        elif len(items_schemas["type"]) == 2:  # noqa PLR2004
+            if items_schemas["type"][0] == "null":
+                field_type = ArrayType(
+                    # TODO: fix this to get propper type
+                    #    _map_json_type_to_spark_type(items_schemas["type"][1])
+                    StringType()
+                )
+            elif items_schemas["type"][1] == "null":
+                field_type = ArrayType(
+                    # TODO: fix this to get propper type
+                    #    _map_json_type_to_spark_type(items_schemas["type"][0])
+                    StringType()
+                )
+            else:
+                # multiple types, only safe type is a string based array
+                field_type = ArrayType(StringType())
+        else:
+            field_type = ArrayType(StringType())
+    elif isinstance(items_schemas["type"], str):
+        # This is regular array containing a single type
+        field_type = ArrayType(_map_json_type_to_spark_type(items_schemas))
+    else:
+        raise Exception(f"Unexpected type value: {items_schemas}")
+
+    return field_type
+
+
+def _convert_tuple_json_array(items_schemas):
+    # Loop over item schemas and store type as StructType field
+    struct_type_fields = []
+    for item_schema in items_schemas:
+        if item_schema["type"] == "object":
+            tuple_field_type = StructType(from_json_to_spark(item_schema).fields)
+        else:
+            tuple_field_type = _map_json_type_to_spark_type(item_schema)
+
+        # TODO: check nullable
+        nullable = True
+        field_name = ""  # Spark will assign col1, col2 etc
+        struct_type_fields.append(StructField(field_name, tuple_field_type, nullable))
+    field_type = StructType(struct_type_fields)
 
     return field_type
