@@ -1,3 +1,7 @@
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v0.json)](https://github.com/charliermarsh/ruff)
+
 # json-data-type-to-spark-sql-type-mapper
 A python mapper that converts JSON data types to a Spark SQL type
 
@@ -56,3 +60,23 @@ Nothing here yet as this is pretty straight forward, right?!
 
 ### Issues
 Please check existing issues before creating a new one.
+
+## Development
+
+For development, install the `[dev]` dependencies of the package.
+This will also install [pre-commit](https://pre-commit.com/).
+
+Install pre-commit so that it automatically runs whenever you create a
+new commit, to ensure code quality before pushing.
+
+```bash
+pip install .[dev]
+pre-commit install
+```
+
+### Pre-commit
+
+Pre-commit is configured to lint and autofix all files with standard.
+
+Python code linting is done with [black](https://pypi.org/project/black/) and [ruff](https://pypi.org/project/ruff/) with a selection
+of ruff plugins. Details are in `.pre-commit-config.yaml`.
