@@ -17,4 +17,3 @@
     "required": ["stringValue", "numberValue", "integerValue", "booleanValue"],
     "additionalProperties": false
   }
-  

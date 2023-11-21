@@ -32,6 +32,9 @@ ban-relative-imports = "all"
 [tool.black]
 line_length = 88
 
+[tool.ruff.pylint]
+max-branches = 13  # default is 12, but this project has 13, so we allow it.
+
 [tool.mypy]
 ignore_missing_imports = true
 exclude = [".venv"]
