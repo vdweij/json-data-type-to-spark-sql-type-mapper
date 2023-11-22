@@ -1,0 +1,11 @@
+{
+    "title": "Optional-DateTime-Type-Schema",
+    "type": "object",
+    "properties": {
+        "optionalDateTimeValue": {
+            "type": ["string", "null"],
+            "format" : "date-time",
+            "description": "An optional datetime type property"
+        }
+    }
+}
