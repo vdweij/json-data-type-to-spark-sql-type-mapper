@@ -221,7 +221,7 @@ class TestMappings(unittest.TestCase):
             (struct_type.fields[struct_type.fieldNames().index("constValue")]).dataType,
             StringType(),
         )
-        
+
     def test_multi_type_schema(self):
         with open("tests/multi-type-schema.json") as schema_file:
             schema = json.load(schema_file)
@@ -230,10 +230,12 @@ class TestMappings(unittest.TestCase):
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 1)
         self.assertEqual(
-            (struct_type.fields[struct_type.fieldNames().index("multiTypeValue")]).dataType,
+            (
+                struct_type.fields[struct_type.fieldNames().index("multiTypeValue")]
+            ).dataType,
             StringType(),
-        )    
-        
+        )
+
     def test_optional_null_type_schema(self):
         with open("tests/optional-null-type-schema.json") as schema_file:
             schema = json.load(schema_file)
@@ -242,9 +244,13 @@ class TestMappings(unittest.TestCase):
         self.assertIsInstance(struct_type, StructType)
         self.assertTrue(len(struct_type.fields) == 1)
         self.assertEqual(
-            (struct_type.fields[struct_type.fieldNames().index("optionalDateTimeValue")]).dataType,
+            (
+                struct_type.fields[
+                    struct_type.fieldNames().index("optionalDateTimeValue")
+                ]
+            ).dataType,
             TimestampType(),
-        )        
+        )
 
     #######
     #

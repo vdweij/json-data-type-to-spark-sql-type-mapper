@@ -40,7 +40,6 @@ def from_json_to_spark(schema) -> StructType:
 def _map_json_type_to_spark_type(json_snippet):
     field_type = None
     if "type" in json_snippet:
-        
         if isinstance(json_snippet["type"], list):
             # an array of types
             field_type = _map_multiple_json_types_to_spark_type(json_snippet)
@@ -78,40 +77,46 @@ def _map_json_type_to_spark_type(json_snippet):
 
     return field_type
 
+
 def _map_multiple_json_types_to_spark_type(json_snippet):
     # Tricky business: https://cswr.github.io/JsonSchema/spec/multiple_types/
     #
     # There are various cases in which multiple types make sense:
     #
     # - It can be used to specify that a property must be present, but that the value can be null
-    # - It can be used to indicate that a value can be either one of the specified types. 
+    # - It can be used to indicate that a value can be either one of the specified types.
     #
     # In the latter case a StringType would make sense to use as a SparkType. In the first case
     # the type should be determined via the same path for which a regualar single type property
     # would be used.
     if len(json_snippet["type"]) == 0:
-            # only an empty array as value is allowed (weird definition, but valid)
-            field_type = ArrayType(StringType())
+        # only an empty array as value is allowed (weird definition, but valid)
+        field_type = ArrayType(StringType())
     elif len(json_snippet["type"]) == 1:
         field_type = _map_json_type_to_spark_type(json_snippet["type"][0])
     elif len(json_snippet["type"]) == 2:  # noqa PLR2004
         if json_snippet["type"][0] == "null":
-            org_types_value = json_snippet["type"] # copy original value
-            json_snippet["type"] = org_types_value[1] # temp overwrite type to single type
+            org_types_value = json_snippet["type"]  # copy original value
+            json_snippet["type"] = org_types_value[
+                1
+            ]  # temp overwrite type to single type
             field_type = _map_json_type_to_spark_type(json_snippet)
-            json_snippet["type"] = org_types_value # copy orginal value back
+            json_snippet["type"] = org_types_value  # copy orginal value back
         elif json_snippet["type"][1] == "null":
-            org_types_value = json_snippet["type"] # copy original value
-            json_snippet["type"] = org_types_value[0] # temp overwrite type to single type
+            org_types_value = json_snippet["type"]  # copy original value
+            json_snippet["type"] = org_types_value[
+                0
+            ]  # temp overwrite type to single type
             field_type = _map_json_type_to_spark_type(json_snippet)
-            json_snippet["type"] = org_types_value # copy orginal value back
+            json_snippet["type"] = org_types_value  # copy orginal value back
         else:
             # multiple types, only safe type is a string based array
             field_type = StringType()
     else:
         field_type = StringType()
-    
+
     return field_type
+
 
 def _convert_json_string(value):
     field_type = StringType()
