@@ -1,5 +1,6 @@
 import json
-#import sys
+
+# import sys
 import unittest
 
 from pyspark.sql.types import (
@@ -17,7 +18,7 @@ from pyspark.sql.types import (
     TimestampType,
 )
 
-#sys.path.append(".")  # needed for debugging in VSCode
+# sys.path.append(".")  # needed for debugging in VSCode
 from json2spark_mapper.schema_mapper import from_json_to_spark
 
 
