@@ -1,0 +1,10 @@
+{
+    "title": "Boolean-Schema",
+    "type": "object",
+    "properties": {
+        "boolValue": {
+            "type": "boolean",
+            "description": "A boolean value"
+        }
+    }
+}

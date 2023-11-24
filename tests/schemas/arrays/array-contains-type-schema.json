@@ -1,0 +1,13 @@
+{
+    "title": "Simple-Array-Schema",
+    "type": "object",
+    "properties": {
+        "arrayValue": {
+            "type": "array",
+            "contains": {
+                "type": "number"
+            },
+            "description": "An array that contains a number type"
+        }
+    }
+}

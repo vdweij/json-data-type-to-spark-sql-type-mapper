@@ -1,0 +1,35 @@
+{
+    "type": "object",
+    "properties": {
+      "arrayValue": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "requiredStringValue": {
+              "type": "string"
+            },
+            "optionalStringValue": {
+              "type": "string"
+            }
+          },
+          "required": ["requiredStringValue"]
+        }
+      },
+      "objectValue": {
+        "type": "object",
+        "properties": {
+          "nestedStringValue": {
+            "type": "string"
+          },
+          "nestedNumberValue": {
+            "type": "number"
+          }
+        },
+        "required": ["nestedStringValue", "nestedNumberValue"],
+        "additionalProperties": false
+      }
+    },
+    "required": ["arrayValue", "objectValue"],
+    "additionalProperties": false
+  }
