@@ -42,7 +42,7 @@ class TestMappings(unittest.TestCase):
             from_json_to_spark(schema)
 
     def test_empty_schema(self):
-        with open("tests/empty-schema.json") as schema_file:
+        with open("tests/schemas/empty-schema.json") as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with an empty field array
@@ -50,7 +50,7 @@ class TestMappings(unittest.TestCase):
         self.assertTrue(len(struct_type.fields) == 0)
 
     def test_simple_schema(self):
-        with open("tests/simple-schema.json") as schema_file:
+        with open("tests/schemas/simple-schema.json") as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 3
@@ -59,7 +59,7 @@ class TestMappings(unittest.TestCase):
         self.assertTrue(len(struct_type.fields) == expected_length)
 
     def test_str_type_schema(self):
-        with open("tests/string-type-schema.json") as schema_file:
+        with open("tests/schemas/string-type-schema.json") as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
@@ -72,7 +72,7 @@ class TestMappings(unittest.TestCase):
         self.assertTrue(stringValueType.nullable)
 
     def test_str_datetime_type_schema(self):
-        with open("tests/string-datetime-type-schema.json") as schema_file:
+        with open("tests/schemas/string-datetime-type-schema.json") as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 3
@@ -101,7 +101,7 @@ class TestMappings(unittest.TestCase):
         )
 
     def test_bool_type_schema(self):
-        with open("tests/bool-type-schema.json") as schema_file:
+        with open("tests/schemas/bool-type-schema.json") as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
@@ -113,7 +113,7 @@ class TestMappings(unittest.TestCase):
         )
 
     def test_int_type_schema(self):
-        with open("tests/int-type-schema.json") as schema_file:
+        with open("tests/schemas/int-type-schema.json") as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 5
@@ -154,7 +154,7 @@ class TestMappings(unittest.TestCase):
         )
 
     def test_num_type_schema(self):
-        with open("tests/num-type-schema.json") as schema_file:
+        with open("tests/schemas/num-type-schema.json") as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 2
@@ -175,7 +175,7 @@ class TestMappings(unittest.TestCase):
         )
 
     def test_null_type_schema(self):
-        with open("tests/null-type-schema.json") as schema_file:
+        with open("tests/schemas/null-type-schema.json") as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
@@ -187,7 +187,7 @@ class TestMappings(unittest.TestCase):
         )
 
     def test_any_type_schema(self):
-        with open("tests/any-type-schema.json") as schema_file:
+        with open("tests/schemas/any-type-schema.json") as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
@@ -199,7 +199,7 @@ class TestMappings(unittest.TestCase):
         )
 
     def test_anyof_type_schema(self):
-        with open("tests/anyof-type-schema.json") as schema_file:
+        with open("tests/schemas/anyof-type-schema.json") as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
@@ -211,7 +211,7 @@ class TestMappings(unittest.TestCase):
         )
 
     def test_const_type_schema(self):
-        with open("tests/const-type-schema.json") as schema_file:
+        with open("tests/schemas/const-type-schema.json") as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
@@ -223,7 +223,7 @@ class TestMappings(unittest.TestCase):
         )
 
     def test_multi_type_schema(self):
-        with open("tests/multi-type-schema.json") as schema_file:
+        with open("tests/schemas/multi-type-schema.json") as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
@@ -237,7 +237,7 @@ class TestMappings(unittest.TestCase):
         )
 
     def test_optional_null_type_schema(self):
-        with open("tests/optional-null-type-schema.json") as schema_file:
+        with open("tests/schemas/optional-null-type-schema.json") as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
@@ -260,7 +260,9 @@ class TestMappings(unittest.TestCase):
 
     # test simple object
     def test_simple_object_type_schema(self):
-        with open("tests/simple-object-type-schema.json") as schema_file:
+        with open(
+            "tests/schemas/objects/simple-object-type-schema.json"
+        ) as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
@@ -304,7 +306,9 @@ class TestMappings(unittest.TestCase):
 
     # test complex object
     def test_complex_object_type_schema(self):
-        with open("tests/complex-object-type-schema.json") as schema_file:
+        with open(
+            "tests/schemas/objects/complex-object-type-schema.json"
+        ) as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 2
@@ -348,7 +352,7 @@ class TestMappings(unittest.TestCase):
 
     # test simple array
     def test_simple_array_type_schema(self):
-        with open("tests/simple-array-type-schema.json") as schema_file:
+        with open("tests/schemas/arrays/simple-array-type-schema.json") as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
@@ -366,7 +370,9 @@ class TestMappings(unittest.TestCase):
 
     # test simple array with multiple types
     def test_simple_array_multiple_types_schema(self):
-        with open("tests/simple-array-multiple-types-schema.json") as schema_file:
+        with open(
+            "tests/schemas/arrays/simple-array-multiple-types-schema.json"
+        ) as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
@@ -385,7 +391,7 @@ class TestMappings(unittest.TestCase):
     # test simple integer array with null type
     def test_simple_integer_array_with_null_type_schema(self):
         with open(
-            "tests/simple-integer-array-with null-type-schema.json"
+            "tests/schemas/arrays/simple-integer-array-with null-type-schema.json"
         ) as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
@@ -404,7 +410,9 @@ class TestMappings(unittest.TestCase):
 
     # test array containg specific type
     def test_array_contains_type_schema(self):
-        with open("tests/array-contains-type-schema.json") as schema_file:
+        with open(
+            "tests/schemas/arrays/array-contains-type-schema.json"
+        ) as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
@@ -421,7 +429,9 @@ class TestMappings(unittest.TestCase):
 
     # test tuple array that does not allow additional items
     def test_array_no_aditional_items_type_schema(self):
-        with open("tests/array-no-additional-items-type-schema.json") as schema_file:
+        with open(
+            "tests/schemas/arrays/array-no-additional-items-type-schema.json"
+        ) as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
@@ -442,7 +452,7 @@ class TestMappings(unittest.TestCase):
 
     # test complex array
     def test_complex_array_type_schema(self):
-        with open("tests/complex-array-type-schema.json") as schema_file:
+        with open("tests/schemas/arrays/complex-array-type-schema.json") as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 1
@@ -462,7 +472,7 @@ class TestMappings(unittest.TestCase):
 
     # test required fields
     def test_required_simple_fields(self):
-        with open("tests/required-simple-fields-schema.json") as schema_file:
+        with open("tests/schemas/required-simple-fields-schema.json") as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 4
@@ -496,7 +506,7 @@ class TestMappings(unittest.TestCase):
 
     # test required fields
     def test_required_complex_fields(self):
-        with open("tests/required-complex-fields-schema.json") as schema_file:
+        with open("tests/schemas/required-complex-fields-schema.json") as schema_file:
             schema = json.load(schema_file)
         struct_type = from_json_to_spark(schema)
         # expects an StructType with a field array of length 2
