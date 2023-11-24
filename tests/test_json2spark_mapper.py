@@ -16,6 +16,15 @@ from pyspark.sql.types import (
     TimestampType,
 )
 
+#####
+#
+# Needed to be able to debug in VSCode
+#
+#####
+import sys
+sys.path.append('.')
+
+
 from json2spark_mapper.schema_mapper import from_json_to_spark
 
 
