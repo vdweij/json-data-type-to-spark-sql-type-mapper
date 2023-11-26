@@ -1,0 +1,90 @@
+name: Release Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Release version (e.g., 1.2.3)'
+        required: true
+        type: string
+      next_dev_version:
+        description: 'Next development version (e.g., 1.2.4 dev+timestamp will be appended) '
+        required: true
+        type: string
+      dry_run:
+        description: 'Perform a dry run (true/false) no commit or pull requests'
+        required: false
+        default: false
+        tytpe: boolean    
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Sanitize release version
+        run: |
+          # Extract release version input
+          RELEASE_VERSION=${{ github.event.inputs.release_version }}
+
+          # Replace potentially harmful characters
+          SANITIZED_RELEASE_VERSION=$(echo "${RELEASE_VERSION}" | sed 's/[\\"'\'']/\\&/g')
+
+          echo "Sanitized release version: ${SANITIZED_RELEASE_VERSION}"
+
+      - name: Sanitize next development version
+        run: |
+          # Extract next development version input
+          NEXT_DEV_VERSION=${{ github.event.inputs.next_dev_version }}
+
+          # Replace potentially harmful characters
+          SANITIZED_NEXT_DEV_VERSION=$(echo "${NEXT_DEV_VERSION}" | sed 's/[\\"'\'']/\\&/g')
+
+          echo "Sanitized next development version: ${SANITIZED_NEXT_DEV_VERSION}"
+
+      - name: Set dry run
+          DRY_RUN=${{ github.event.inputs.dry_run }}
+
+      - name: Bump version for release
+        run: |
+          # Bump version in setup.py
+          sed -i "s/version=.*$/version=\"${SANITIZED_RELEASE_VERSION}\",/" setup.py
+
+          # Set Git user details dynamically
+          git config --local user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --local user.name "${{ github.actor }} (GitHub Action)"
+
+          # Commit changes
+          git add setup.py
+          if [[ "$DRY_RUN" != "true" ]]; then
+            git commit -m "Bump version for release to ${SANITIZED_RELEASE_VERSION}"
+          fi
+
+      - name: Create pull request
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Bump version for release to ${{ github.event.inputs.release_version }}"
+          title: "Bump version for release to ${{ github.event.inputs.release_version }}"
+          body: |
+            This pull request bumps the version for release.
+
+      - name: Bump version for next development
+        run: |
+          # Bump version in setup.py
+          sed -i "s/version='.*'/version='${SANITIZED_NEXT_DEV_VERSION}'/" setup.py
+          sed -i "s/version=.*$/version=\"${SANITIZED_NEXT_DEV_VERSION}\" + version_postfix,/" setup.py
+
+          # Set Git user details dynamically
+          git config --local user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --local user.name "${{ github.actor }} (GitHub Action)"
+
+          # Commit changes
+          git add setup.py
+          if [[ "$DRY_RUN" != "true" ]]; then
+            git commit -m "Bump version for next development to ${SANITIZED_NEXT_DEV_VERSION}"
+          fi
