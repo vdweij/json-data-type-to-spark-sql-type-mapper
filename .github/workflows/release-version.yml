@@ -15,7 +15,7 @@ on:
         description: 'Perform a dry run (true/false) no commit or pull requests'
         required: false
         default: false
-        tytpe: boolean
+        type: boolean
 
 jobs:
   release:
@@ -46,8 +46,7 @@ jobs:
           echo "Sanitized next development version: ${SANITIZED_NEXT_DEV_VERSION}"
 
       - name: Set dry run
-        run: |
-          DRY_RUN=${{ github.event.inputs.dry_run }}
+        run: DRY_RUN=${{ github.event.inputs.dry_run }}
 
       - name: Bump version for release
         run: |
