@@ -8,14 +8,14 @@ on:
         required: true
         type: string
       next_dev_version:
-        description: 'Next development version (e.g., 1.2.4 dev+timestamp will be appended) '
+        description: 'Next development version (e.g., 1.2.4 dev+timestamp will be appended)'
         required: true
         type: string
       dry_run:
         description: 'Perform a dry run (true/false) no commit or pull requests'
         required: false
         default: false
-        tytpe: boolean    
+        tytpe: boolean
 
 jobs:
   release:
