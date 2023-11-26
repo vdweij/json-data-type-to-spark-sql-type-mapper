@@ -388,7 +388,7 @@ class TestMappings(unittest.TestCase):
         self.assertEqual(
             simple_array.dataType.typeName, ArrayType(elementType=StringType()).typeName
         )  # ArrayType needs an init paramter
-        # Check elementType properties
+        # Because the array contains more than one type, only a string based array is safe.
         self.assertEqual(simple_array.dataType.elementType, StringType())
 
     # test simple integer array with null type
@@ -409,7 +409,7 @@ class TestMappings(unittest.TestCase):
             simple_array.dataType.typeName, ArrayType(elementType=StringType()).typeName
         )  # ArrayType needs an init paramter
         # Check elementType properties
-        self.assertEqual(simple_array.dataType.elementType, StringType())
+        self.assertEqual(simple_array.dataType.elementType, LongType())
 
     # test array containg specific type
     def test_array_contains_type_schema(self):
@@ -426,9 +426,25 @@ class TestMappings(unittest.TestCase):
         self.assertEqual(
             simple_array.dataType.typeName, ArrayType(elementType=StringType()).typeName
         )  # ArrayType needs an init paramter
-        # Check elementType properties
-        # TODO: fix this test!!!
+        # Because the array can contain more than one type, only a string based array is safe.
         self.assertEqual(simple_array.dataType.elementType, StringType())
+
+    # test array containg optional datetime type
+    def test_array_with_optional_datetime_type_schema(self):
+        with open(
+            "tests/schemas/arrays/array-with-optional-datetime-type-schema.json"
+        ) as schema_file:
+            schema = json.load(schema_file)
+        struct_type = from_json_to_spark(schema)
+        # expects an StructType with a field array of length 1
+        self.assertIsInstance(struct_type, StructType)
+        self.assertTrue(len(struct_type.fields) == 1)
+        # compare type name, because instances will have different content
+        simple_array = struct_type.fields[struct_type.fieldNames().index("arrayValue")]
+        self.assertEqual(
+            simple_array.dataType.typeName, ArrayType(elementType=StringType()).typeName
+        )  # ArrayType needs an init paramter
+        self.assertEqual(simple_array.dataType.elementType, TimestampType())
 
     # test tuple array that does not allow additional items
     def test_array_no_aditional_items_type_schema(self):
@@ -469,9 +485,8 @@ class TestMappings(unittest.TestCase):
             complex_array.dataType.typeName,
             ArrayType(elementType=StringType()).typeName,
         )  # ArrayType needs an init paramter
-        # Check elementType properties
-        # TODO: fix test
-        # self.assertEqual(complexArray.dataType.elementType, DoubleType())
+        # Because the tuple contains more than one type, only a string based array is safe.
+        self.assertEqual(complex_array.dataType.elementType, StringType())
 
     # test required fields
     def test_required_simple_fields(self):

@@ -250,33 +250,8 @@ def _convert_regular_json_array(items_schemas):
     if items_schemas["type"] == "object":
         field_type = ArrayType(StructType(from_json_to_spark(items_schemas).fields))
     elif isinstance(items_schemas["type"], list):
-        # TODO: an array can also contain mutiple mixed types. In such case a string based array
-        # would be the safest unless null is the only adition type.
-        if len(items_schemas["type"]) == 0:
-            # only an empty array as value is allowed (weird definition, but valid)
-            field_type = ArrayType(StringType())
-        elif len(items_schemas["type"]) == 1:
-            field_type = ArrayType(
-                _map_json_type_to_spark_type(items_schemas["type"][0])
-            )
-        elif len(items_schemas["type"]) == 2:  # noqa PLR2004
-            if items_schemas["type"][0] == "null":
-                field_type = ArrayType(
-                    # TODO: fix this to get propper type
-                    #    _map_json_type_to_spark_type(items_schemas["type"][1])
-                    StringType()
-                )
-            elif items_schemas["type"][1] == "null":
-                field_type = ArrayType(
-                    # TODO: fix this to get propper type
-                    #    _map_json_type_to_spark_type(items_schemas["type"][0])
-                    StringType()
-                )
-            else:
-                # multiple types, only safe type is a string based array
-                field_type = ArrayType(StringType())
-        else:
-            field_type = ArrayType(StringType())
+        # a multiple type array
+        field_type = ArrayType(_map_multiple_json_types_to_spark_type(items_schemas))
     elif isinstance(items_schemas["type"], str):
         # This is regular array containing a single type
         field_type = ArrayType(_map_json_type_to_spark_type(items_schemas))

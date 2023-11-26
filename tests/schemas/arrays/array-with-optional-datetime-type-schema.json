@@ -1,0 +1,14 @@
+{
+    "title": "Array-With-Optional-Datetime-Schema",
+    "type": "object",
+    "properties": {
+        "arrayValue": {
+            "type": "array",
+            "items": {
+                "type": ["string", "null"],
+                "format": "date-time"
+            },
+            "description": "An array that contains a n optional datatime type"
+        }
+    }
+}
