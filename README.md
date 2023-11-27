@@ -81,3 +81,7 @@ Pre-commit is configured to lint and autofix all files with standard.
 
 Python code linting is done with [black](https://pypi.org/project/black/) and [ruff](https://pypi.org/project/ruff/) with a selection
 of ruff plugins. Details are in `.pre-commit-config.yaml`.
+
+### More
+
+See for more [development information](docs/development.md).
