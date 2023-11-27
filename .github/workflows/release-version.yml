@@ -22,6 +22,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check Branch
+        run: |
+          if [ "${GITHUB_REF#refs/heads/}" != "dev" ]; then
+            echo "This workflow is only allowed on the 'dev' branch. Exiting."
+            exit 0  # Exit with success, stopping further steps
+          fi
       - name: Checkout code
         uses: actions/checkout@v2
 
