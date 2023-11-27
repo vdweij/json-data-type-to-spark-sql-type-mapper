@@ -26,7 +26,8 @@ jobs:
         run: |
           if [ "${GITHUB_REF#refs/heads/}" != "dev" ]; then
             echo "This workflow is only allowed on the 'dev' branch. Exiting."
-            exit 0  # Exit with success, stopping further steps
+            echo "::error::Workflow is not allowed on this branch."  # Set an error message
+            exit 1  # Exit with failure
           fi
       - name: Checkout code
         uses: actions/checkout@v2
