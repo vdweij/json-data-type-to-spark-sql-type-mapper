@@ -1,6 +1,25 @@
-import json
+"""
+# For debuging in VSCode add this launch file/snippet in .vscode/launch.json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Unittest",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "purpose": ["debug-test"],
+            "console": "integratedTerminal",
+            "env": {"PYTHONPATH": "${workspaceFolder}${pathSeparator}${env:PYTHONPATH}"}
+        }
+    ]
+}
 
+# No longer needed:
 # import sys
+# sys.path.append(".")
+"""
+import json
 import unittest
 
 from pyspark.sql.types import (
@@ -18,7 +37,6 @@ from pyspark.sql.types import (
     TimestampType,
 )
 
-# sys.path.append(".")  # needed for debugging in VSCode
 from json2spark_mapper.schema_mapper import from_json_to_spark
 
 
