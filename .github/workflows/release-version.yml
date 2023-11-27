@@ -22,15 +22,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check Branch
-        run: |
-          if [ "${GITHUB_REF#refs/heads/}" != "dev" ]; then
-            echo "This workflow is only allowed on the 'dev' branch. Exiting."
-            echo "::error::Workflow is not allowed on this branch."  # Set an error message
-            exit 1  # Exit with failure
-          fi
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+        with:
+          ref: dev
 
       - name: Sanitize release version
         run: |
@@ -58,6 +53,8 @@ jobs:
       - name: Bump version for release
         run: |
           # Bump version in setup.py
+          echo "Setting release version: ${SANITIZED_RELEASE_VERSION}"
+          
           sed -i "s/version=.*$/version=\"${SANITIZED_RELEASE_VERSION}\",/" setup.py
 
           # Set Git user details dynamically
@@ -83,7 +80,8 @@ jobs:
       - name: Bump version for next development
         run: |
           # Bump version in setup.py
-          sed -i "s/version='.*'/version='${SANITIZED_NEXT_DEV_VERSION}'/" setup.py
+          echo "Setting new dev version: ${SANITIZED_NEXT_DEV_VERSION}"
+           
           sed -i "s/version=.*$/version=\"${SANITIZED_NEXT_DEV_VERSION}\" + version_postfix,/" setup.py
 
           # Set Git user details dynamically
