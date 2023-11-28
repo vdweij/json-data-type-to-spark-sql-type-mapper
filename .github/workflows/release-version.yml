@@ -27,35 +27,33 @@ jobs:
         with:
           ref: dev
 
-      - name: Sanitize release version
+      - name: Check inut
+        run: |
+          INPUT_PATTERN="^[0-9]+\.[0-9]+\.[0-9]+$"
+          
+          RELEASE_VERSION="${{ github.event.inputs.release_version }}"
+          if [[ ! $RELEASE_VERSION =~ $INPUT_PATTERN ]]; then
+            echo "Invalid input format for release version. Must be in the format 'number.number.number'."
+            echo "::error::Invalid input format!"  # Set an error message
+            exit 1
+          fi
+
+          NEXT_DEV_VERSION=${{ github.event.inputs.next_dev_version }}
+          if [[ ! $NEXT_DEV_VERSION =~ $INPUT_PATTERN ]]; then
+            echo "Invalid input format for next development version. Must be in the format 'number.number.number'."
+            echo "::error::Invalid input format!"  # Set an error message
+            exit 1
+          fi
+          
+      - name: Bump version for release
         run: |
           # Extract release version input
           RELEASE_VERSION=${{ github.event.inputs.release_version }}
 
-          # Replace potentially harmful characters
-          SANITIZED_RELEASE_VERSION=$(echo "${RELEASE_VERSION}" | sed 's/[\\"'\'']/\\&/g')
-
-          echo "Sanitized release version: ${SANITIZED_RELEASE_VERSION}"
-
-      - name: Sanitize next development version
-        run: |
-          # Extract next development version input
-          NEXT_DEV_VERSION=${{ github.event.inputs.next_dev_version }}
-
-          # Replace potentially harmful characters
-          SANITIZED_NEXT_DEV_VERSION=$(echo "${NEXT_DEV_VERSION}" | sed 's/[\\"'\'']/\\&/g')
-
-          echo "Sanitized next development version: ${SANITIZED_NEXT_DEV_VERSION}"
-
-      - name: Set dry run
-        run: DRY_RUN=${{ github.event.inputs.dry_run }}
-
-      - name: Bump version for release
-        run: |
           # Bump version in setup.py
-          echo "Setting release version: ${SANITIZED_RELEASE_VERSION}"
+          echo "Setting release version: ${RELEASE_VERSION}"
           
-          sed -i "s/version=.*$/version=\"${SANITIZED_RELEASE_VERSION}\",/" setup.py
+          sed -i "s/version=.*$/version=\"${RELEASE_VERSION}\",/" setup.py
 
           # Set Git user details dynamically
           git config --local user.email "${{ github.actor }}@users.noreply.github.com"
@@ -63,8 +61,8 @@ jobs:
 
           # Commit changes
           git add setup.py
-          if [[ "$DRY_RUN" != "true" ]]; then
-            git commit -m "Bump version for release to ${SANITIZED_RELEASE_VERSION}"
+          if [[ "${{ github.event.inputs.dry_run }}" != "true" ]]; then
+            git commit -m "Bump version for release to ${RELEASE_VERSION}"
           fi
 
       - name: Create pull request
@@ -79,10 +77,13 @@ jobs:
 
       - name: Bump version for next development
         run: |
+          # Extract next development version input
+          NEXT_DEV_VERSION=${{ github.event.inputs.next_dev_version }}
+
           # Bump version in setup.py
-          echo "Setting new dev version: ${SANITIZED_NEXT_DEV_VERSION}"
+          echo "Setting new dev version: ${NEXT_DEV_VERSION}"
            
-          sed -i "s/version=.*$/version=\"${SANITIZED_NEXT_DEV_VERSION}\" + version_postfix,/" setup.py
+          sed -i "s/version=.*$/version=\"${NEXT_DEV_VERSION}\" + version_postfix,/" setup.py
 
           # Set Git user details dynamically
           git config --local user.email "${{ github.actor }}@users.noreply.github.com"
@@ -90,6 +91,6 @@ jobs:
 
           # Commit changes
           git add setup.py
-          if [[ "$DRY_RUN" != "true" ]]; then
-            git commit -m "Bump version for next development to ${SANITIZED_NEXT_DEV_VERSION}"
+          if [[ "${{ github.event.inputs.dry_run }}" != "true" ]]; then
+            git commit -m "Bump version for next development to ${NEXT_DEV_VERSION}"
           fi
