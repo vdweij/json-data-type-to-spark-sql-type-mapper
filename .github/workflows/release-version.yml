@@ -22,11 +22,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: dev
-
       - name: Check inut
         run: |
           INPUT_PATTERN="^[0-9]+\.[0-9]+\.[0-9]+$"
@@ -44,6 +39,11 @@ jobs:
             echo "::error::Invalid input format!"  # Set an error message
             exit 1
           fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: dev
           
       - name: Bump version for release
         run: |
