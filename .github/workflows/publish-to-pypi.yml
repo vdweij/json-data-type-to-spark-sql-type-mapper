@@ -5,6 +5,13 @@ on:
     branches:
       - main
       - dev
+  workflow_dispatch:
+    inputs:
+      force_upload:
+        description: 'Forces an upload attempt regardless of any significant changes'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   build:
@@ -50,8 +57,9 @@ jobs:
 
       - name: Upload to PyPI
         if: |
+          github.event.inputs.force_upload == 'true' ||
           contains(github.event.before, 'json2spark_mapper/') ||
-          contains(github.event.before, 'setup.py/')
+          contains(github.event.before, 'setup.py')
         run: |
           pip install twine
           echo "Uploading module"
