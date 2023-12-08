@@ -276,9 +276,11 @@ def _convert_regular_json_array(items_schemas):
 
 def _convert_tuple_json_array(items_schemas):
     # Loop over item schemas and store type as StructType field
+
     struct_type_fields = []
     for item_schema in items_schemas:
         if item_schema["type"] == "object":
+            logger.debug("Tuple items type is an object.")
             tuple_field_type = StructType(from_json_to_spark(item_schema).fields)
         else:
             tuple_field_type = _map_json_type_to_spark_type(item_schema)
