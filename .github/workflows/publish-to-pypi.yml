@@ -58,8 +58,9 @@ jobs:
       - name: Debug Info
         run: |
           echo "force_upload: ${{ github.event.inputs.force_upload }}"
+          echo "GH status ${{ github.event.before }}"
           echo "Changed files:"
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }}
+          #git diff --name-only ${{ github.event.before }} ${{ github.sha }}
 
       - name: Print Event Payload
         run: echo "$GITHUB_EVENT_PATH"
