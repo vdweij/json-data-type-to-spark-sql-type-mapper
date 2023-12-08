@@ -79,7 +79,6 @@ Multiple types are also possible
   }
 }
 ```
-TODO: add support
 
 It can however also hold multiple types and behaving like a [tuple](https://docs.python.org/3/library/stdtypes.html?highlight=tuple#tuple). In that case the type is mapped to a **StructTYpe** an the field names will not be explicitly defined. Spark will assign default field names. The default names follow a pattern of "col1," "col2," and so on, based on the index of the field within the schema. 
 
@@ -125,8 +124,6 @@ The `contains` property indicates that an array should at least contain an eleme
   }
 }
 ```
-
-**WARNING!** JSON arrays are not supported properly at the moment.
 
 ## Object
 In JSON an `object` has fields with a name and a corresponding data type. It is possible to nest objects in objects to create complex representations. The type can be mapped to a **StructType** in Spark SQL that is also capable of containing fields of various types.

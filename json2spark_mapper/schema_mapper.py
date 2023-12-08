@@ -1,3 +1,5 @@
+import logging
+
 from pyspark.sql.types import (
     ArrayType,
     BooleanType,
@@ -14,12 +16,18 @@ from pyspark.sql.types import (
     TimestampType,
 )
 
+logger = logging.getLogger(__name__)
+
 
 def from_json_to_spark(schema) -> StructType:
     properties = schema["properties"]
     fields = []
     for key, value in properties.items():
+        logger.debug(f"Determining type for: {key}")
+
         field_type = _map_json_type_to_spark_type(value)
+
+        logger.debug(f"Resolved key {key} to type {field_type.typeName}")
 
         nullable = True
 
@@ -56,6 +64,7 @@ def _map_json_type_to_spark_type(json_snippet):
         elif json_snippet["type"] == "array":
             field_type = _convert_json_array(json_snippet)
         elif json_snippet["type"] == "object":
+            logger.debug("Converting object...")
             field_type = StructType(from_json_to_spark(json_snippet).fields)
         elif json_snippet["type"] == "null":
             field_type = NullType()
@@ -215,6 +224,8 @@ def _convert_json_array(value):
     # StructType with 'nameless' fields. Spark does create names following a pattern of "col1," "col2," and so on,
     # based on the index of the field within the schema.
 
+    logger.debug("Converting array...")
+
     if "items" in value:
         items_schemas = value["items"]
 
@@ -222,12 +233,14 @@ def _convert_json_array(value):
         if isinstance(items_schemas, dict):
             field_type = _convert_regular_json_array(items_schemas)
         elif isinstance(items_schemas, list):
+            logger.debug("Tuple detected...")
             # This is an array containing a tuple
             # Check whether it has a additionalItems property
             if "additionalItems" in value and value["additionalItems"] is False:
                 field_type = _convert_tuple_json_array(items_schemas)
             else:
-                # This tuple can contain more types than specified. It's onnly safe to return a string based array
+                # This tuple can contain more types than specified. It's only safe to return a string based array
+                logger.debug("Tuple can contain more than specified types.")
                 field_type = ArrayType(StringType())
         else:
             raise Exception(

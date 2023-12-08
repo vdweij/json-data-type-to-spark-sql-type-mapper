@@ -1,0 +1,82 @@
+{
+    "type": "object",
+    "properties": {
+        "containerObject": {
+            "type": "object",
+            "properties": {
+                "objectArray": {
+                    "type": "array",
+                    "items": [
+                        {
+                            "type": "object",
+                            "properties": {
+                                "nr": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                },
+                                "objectA": {
+                                    "type": "object",
+                                    "properties": {
+                                        "stringA": {
+                                            "type": "string",
+                                            "maxLength": 38
+                                        },
+                                        "stringB": {
+                                            "type": "string"
+                                        },
+                                        "intA": {
+                                            "type": "integer",
+                                            "minimum": 0
+                                        },
+                                        "intB": {
+                                            "type": "integer",
+                                            "maximum": 999999
+                                        }
+                                    },
+                                    "required": [
+                                        "stringA",
+                                        "stringB",
+                                        "intA",
+                                        "intB"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "nr": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                },
+                                "objectB": {
+                                    "type": "object",
+                                    "properties": {
+                                        "stringAA": {
+                                            "type": "string"
+                                        },
+                                        "intBB": {
+                                            "type": "integer",
+                                            "maximum": 999999999999
+                                        }
+                                    },
+                                    "required": [
+                                        "stringAA",
+                                        "intBB"
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    "additionalItems" : false
+                }
+            },
+            "required": [
+                "objectArray"
+            ]
+        }
+    },
+    "required": [
+        "containerObject"
+    ]
+}
