@@ -59,7 +59,7 @@ jobs:
         run: |
           echo "Changed files:"
           #git diff --name-only ${{ github.event.before }} ${{ github.sha }}
-          git diff HEAD^ HEAD --name-only
+          #git diff HEAD^ HEAD --name-only
 
           echo "Modified according to GH: ${{ github.event.head_commit.modified }}"
 
