@@ -57,10 +57,11 @@ jobs:
 
       - name: Debug Info
         run: |
-          echo "force_upload: ${{ github.event.inputs.force_upload }}"
-          echo "GH status ${{ github.event.before }}"
           echo "Changed files:"
           #git diff --name-only ${{ github.event.before }} ${{ github.sha }}
+          git diff HEAD^ HEAD --name-only
+
+          echo "Modified according to GH: ${{ github.event.head_commit.modified }}"
 
       - name: Print Event Payload
         run: echo "$GITHUB_EVENT_PATH"
@@ -68,8 +69,8 @@ jobs:
       - name: Upload to PyPI
         if: |
           github.event.inputs.force_upload == 'true' ||
-          contains(github.event.before, 'json2spark_mapper/') ||
-          contains(github.event.before, 'setup.py')
+          contains(github.event.head_commit.modified, 'json2spark_mapper/') ||
+          contains(github.event.head_commit.modified, 'setup.py')
         run: |
           pip install twine
           echo "Uploading module"
