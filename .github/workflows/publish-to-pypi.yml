@@ -62,10 +62,8 @@ jobs:
       - run: |
           echo "files changed ${{ steps.changed.outputs.files }}"
           echo "running checks"
-          echo "${{ steps.changed.outputs.files }}" | grep 'json2spark_mapper/'
-          echo $?
-          echo "${{ steps.changed.outputs.files }}" | grep 'setup.py'
-          echo $?
+          result=$(echo "${{ steps.changed.outputs.files }}" | grep 'json2spark_mapper/') || true
+          echo "Result: $result"
 
       - name: Upload to PyPI
         if: |
