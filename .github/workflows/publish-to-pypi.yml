@@ -62,12 +62,8 @@ jobs:
             **/*.py
         id: changed
       - run: |
-          for file in ${{ steps.changed.outputs.files }}; do
-            echo "$file"
-          done
-
           echo "content of "${{ steps.changed.outputs.files }}"
-          cat "${{ steps.changed.outputs.files }}"
+          #cat "${{ steps.changed.outputs.files }}"
 
       - name: Upload to PyPI
         if: |
