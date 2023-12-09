@@ -60,14 +60,13 @@ jobs:
         id: changed
 
       - run: |
-          echo "content of ${{ steps.changed.outputs.files }}"
-          cat "${{ steps.changed.outputs.files }}"
+          echo "files changed ${{ steps.changed.outputs.files }}"
 
       - name: Upload to PyPI
         if: |
           github.event.inputs.force_upload == 'true' ||
-          cat "${{ steps.changed.outputs.files }}" | grep -q 'json2spark_mapper/' ||
-          cat "${{ steps.changed.outputs.files }}" | grep -q 'setup.py'
+          echo "${{ steps.changed.outputs.files }}" | grep -q 'json2spark_mapper/' ||
+          echo "${{ steps.changed.outputs.files }}" | grep -q 'setup.py'
         run: |
           pip install twine
           echo "Uploading module"
