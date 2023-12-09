@@ -66,6 +66,9 @@ jobs:
             echo "$file"
           done
 
+          echo "content of "${{ steps.changed.outputs.files }}"
+          cat "${{ steps.changed.outputs.files }}"
+
       - name: Upload to PyPI
         if: |
           github.event.inputs.force_upload == 'true' ||
