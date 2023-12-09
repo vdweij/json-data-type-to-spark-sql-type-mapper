@@ -56,14 +56,19 @@ jobs:
           fi
 
       - uses: yumemi-inc/changed-files@v2
-        name: Generate changed files overview
+        name: Generate relevant changed files overview
         id: changed
+        with:
+          patterns: |
+            json2spark_mapper/**
+            setup.py
+            run-if-exists: |
+               echo "Changed files: ${{ steps.changed.outputs.files }}"
 
       - name: Upload to PyPI
         if: |
           github.event.inputs.force_upload == 'true' ||
-          ! echo "${{ steps.changed.outputs.files }}" | grep -q 'json2spark_mapper/' ||
-          ! echo "${{ steps.changed.outputs.files }}" | grep -q 'setup.py'
+          steps.changed.outputs.exists == 'true'
         run: |
           pip install twine
           echo "Uploading module"
