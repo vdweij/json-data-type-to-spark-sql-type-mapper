@@ -62,7 +62,7 @@ jobs:
             **/*.py
         id: changed
       - run: |
-          echo "content of "${{ steps.changed.outputs.files }}"
+          echo "content of ${{ steps.changed.outputs.files }}"
           #cat "${{ steps.changed.outputs.files }}"
 
       - name: Upload to PyPI
