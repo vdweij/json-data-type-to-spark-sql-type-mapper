@@ -128,9 +128,12 @@ def _map_multiple_json_types_to_spark_type(json_snippet):
 
 
 def _convert_json_string(value):
+    logger.debug("Converting string...")
+
     field_type = StringType()
 
     if "format" in value:  # Need to check whether attribute is present first
+        logger.debug(f"String format found {value['format']}")
         if value["format"] == "date-time":
             field_type = TimestampType()
         elif value["format"] == "date":
@@ -151,6 +154,8 @@ def _convert_json_int(value):
     #
     # For instance 20230214110547 fits in a json int, but not in a Spark IntegerType
     #
+    logger.debug("Converting integer...")
+
     field_type = LongType()
     determined_range = _determine_inclusive_range(value)
     if determined_range["defined"]:
