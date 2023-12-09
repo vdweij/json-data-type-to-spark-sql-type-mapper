@@ -56,14 +56,12 @@ jobs:
           fi
 
       - uses: yumemi-inc/changed-files@v2
-        name: Generate changed py files overview
-        with:
-          patterns: |
-            **/*.py
+        name: Generate changed files overview
         id: changed
+
       - run: |
           echo "content of ${{ steps.changed.outputs.files }}"
-          #cat "${{ steps.changed.outputs.files }}"
+          cat "${{ steps.changed.outputs.files }}"
 
       - name: Upload to PyPI
         if: |
