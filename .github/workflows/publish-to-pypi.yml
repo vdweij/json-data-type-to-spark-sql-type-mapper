@@ -55,22 +55,19 @@ jobs:
             echo "Unknown branch: ${{ github.ref }}"
           fi
 
-      - name: Debug Info
-        run: |
-          echo "Changed files:"
-          #git diff --name-only ${{ github.event.before }} ${{ github.sha }}
-          #git diff HEAD^ HEAD --name-only
-
-          echo "Modified according to GH: ${{ github.event.head_commit.modified }}"
-
-      - name: Print Event Payload
-        run: echo "$GITHUB_EVENT_PATH"
+      - uses: yumemi-inc/changed-files@v2
+        name: Changed files
+        id: changed
+      - run: |
+          for file in ${{ steps.changed.outputs.files }}; do
+            echo "$file"
+          done
 
       - name: Upload to PyPI
         if: |
           github.event.inputs.force_upload == 'true' ||
-          contains(github.event.head_commit.modified, 'json2spark_mapper/') ||
-          contains(github.event.head_commit.modified, 'setup.py')
+          echo "${{ steps.changed.outputs.files }}" | grep -q 'json2spark_mapper/' ||
+          echo "${{ steps.changed.outputs.files }}" | grep -q 'setup.py'
         run: |
           pip install twine
           echo "Uploading module"
