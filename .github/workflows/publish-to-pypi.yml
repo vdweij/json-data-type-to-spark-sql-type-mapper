@@ -62,8 +62,6 @@ jobs:
           patterns: |
             json2spark_mapper/**
             setup.py
-            run-if-exists: |
-               echo "Changed files: ${{ steps.changed.outputs.files }}"
 
       - name: Upload to PyPI
         if: |

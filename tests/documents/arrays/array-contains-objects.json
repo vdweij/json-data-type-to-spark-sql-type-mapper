@@ -16,13 +16,6 @@
                     "stringAA": "blabla",
                     "intBB": 145
                 }
-            },
-            {
-                "nr": 3,
-                "objectB": {
-                    "stringAA": "blabla",
-                    "intBB": 145
-                }
             }
         ]
     }

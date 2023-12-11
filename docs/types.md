@@ -92,7 +92,8 @@ It can however also hold multiple types and behaving like a [tuple](https://docs
   ]
 }
 ```
-TODO: check nullable tuple fields
+Note: above is a valid schema for 2019-09 draft, the latest draft (2020-12) uses prefixItems that are **not** supported at the moment.
+
 ```json
 {
   "type": "array",
@@ -142,7 +143,7 @@ In JSON, the `anyOf` keyword indicates that the value must match any of the give
 Although not a JSON type, the keyword `const` specifies a constant property's value that the corresponing JSON must exactly match. It can contain all sorts of value types, even complex data type, hence converting it to **StringType** is the safest option.
 
 # In progress
-- Json Array containing multiple types
+- Json Array improvement and 2020-12 draft support
 
 # Unsupported (yet)
 
