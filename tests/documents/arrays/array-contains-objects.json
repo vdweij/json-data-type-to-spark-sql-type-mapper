@@ -1,0 +1,22 @@
+{
+    "containerObject": {
+        "objectArray": [
+            {
+                "nr": 1,
+                "objectA": {
+                    "stringA": "blabla",
+                    "stringB": "blabla",
+                    "intA": 559224,
+                    "intB": 1
+                }
+            },
+            {
+                "nr": 2,
+                "objectB": {
+                    "stringAA": "blabla",
+                    "intBB": 145
+                }
+            }
+        ]
+    }
+}

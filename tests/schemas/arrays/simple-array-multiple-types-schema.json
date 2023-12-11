@@ -1,0 +1,13 @@
+{
+    "title": "Simple-Array-With-Multiple-Items-Schema",
+    "type": "object",
+    "properties": {
+        "simpleArrayValue": {
+            "type": "array",
+            "items": {
+                "type": ["number", "boolean"]
+            },
+            "description": "A simple array type with mutiple types"
+        }
+    }
+}

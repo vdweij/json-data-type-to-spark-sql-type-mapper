@@ -1,0 +1,19 @@
+{
+    "type": "object",
+    "properties": {
+      "stringValue": {
+        "type": "string"
+      },
+      "numberValue": {
+        "type": "number"
+      },
+      "integerValue": {
+        "type": "integer"
+      },
+      "booleanValue": {
+        "type": "boolean"
+      }
+    },
+    "required": ["stringValue", "numberValue", "integerValue", "booleanValue"],
+    "additionalProperties": false
+  }

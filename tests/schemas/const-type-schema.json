@@ -1,0 +1,10 @@
+{
+    "title": "Const-Schema",
+    "type": "object",
+    "properties": {
+        "constValue": {
+            "const": "A_VALUE",
+            "description": "A const value (can contain all sorts of data types, even complex objects"
+        }
+    }
+}

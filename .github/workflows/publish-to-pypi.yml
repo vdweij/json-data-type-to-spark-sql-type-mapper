@@ -3,7 +3,15 @@ name: Publish to PyPI
 on:
   push:
     branches:
-      - main  # Change this to your main branch name
+      - main
+      - dev
+  workflow_dispatch:
+    inputs:
+      force_upload:
+        description: 'Forces an upload attempt regardless of any significant changes'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   build:
@@ -11,15 +19,19 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.x  # Choose the Python version you want to use
+          python-version: '3.10'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt  # Adjust this as needed
+        run: |
+          echo "Installing core dependencies"
+          pip install -r requirements/core.txt
+          echo "Installing dependencies used in unittests and development"
+          pip install -r requirements/test.txt
 
       - name: Run unit tests
         run: python -m unittest discover
@@ -33,11 +45,33 @@ jobs:
       - name: Build wheel distribution
         run: python setup.py bdist_wheel
 
-#      - name: Upload to PyPI
-#        if: success()
-#        run: |
-#          pip install twine
-#          twine upload dist/*
-#        env:
-#          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-#          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      - name: Set Environment Variables
+        run: |
+          if [[ ${{ github.ref }} == refs/heads/main ]]; then
+            echo "TWINE_UPLOAD_CMD=upload dist/*" >> "$GITHUB_ENV"
+            echo "TWINE_USERNAME=${{ vars.PYPI_USERNAME }}" >> "$GITHUB_ENV"
+            echo "TWINE_PASSWORD=${{ secrets.PYPI_PASSWORD }}" >> "$GITHUB_ENV"
+          elif [[ ${{ github.ref }} == refs/heads/dev ]]; then
+            echo "TWINE_UPLOAD_CMD=--repository-url https://test.pypi.org/legacy/ dist/*" >> "$GITHUB_ENV"
+            echo "TWINE_USERNAME=${{ vars.TESTPYPI_USERNAME }}" >> "$GITHUB_ENV"
+            echo "TWINE_PASSWORD=${{ secrets.TESTPYPI_PASSWORD }}" >> "$GITHUB_ENV"
+          else
+            echo "Unknown branch: ${{ github.ref }}"
+          fi
+
+      - uses: yumemi-inc/changed-files@v2
+        name: Generate relevant changed files overview
+        id: changed
+        with:
+          patterns: |
+            json2spark_mapper/**
+            setup.py
+
+      - name: Upload to PyPI
+        if: |
+          github.event.inputs.force_upload == 'true' ||
+          steps.changed.outputs.exists == 'true'
+        run: |
+          pip install twine
+          echo "Uploading module"
+          twine upload $TWINE_UPLOAD_CMD
