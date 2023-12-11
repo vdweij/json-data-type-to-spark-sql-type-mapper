@@ -48,7 +48,7 @@ jobs:
       - name: Set Environment Variables
         run: |
           if [[ ${{ github.ref }} == refs/heads/main ]]; then
-            echo "TWINE_UPLOAD_CMD=upload dist/*" >> "$GITHUB_ENV"
+            echo "TWINE_UPLOAD_CMD=dist/*" >> "$GITHUB_ENV"
             echo "TWINE_USERNAME=${{ vars.PYPI_USERNAME }}" >> "$GITHUB_ENV"
             echo "TWINE_PASSWORD=${{ secrets.PYPI_PASSWORD }}" >> "$GITHUB_ENV"
           elif [[ ${{ github.ref }} == refs/heads/dev ]]; then
