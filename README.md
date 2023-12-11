@@ -75,6 +75,12 @@ pip install .[dev]
 pre-commit install
 ```
 
+In order to run unittest locally also install the `[test]` dependencies.
+
+```bash
+pip install .[test]
+```
+
 ### Pre-commit
 
 Pre-commit is configured to lint and autofix all files with standard.
