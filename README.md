@@ -20,7 +20,10 @@ This package provides a mapping function that can be used similar to how avro sc
 First make sure you install the module into your environment. There are various options assuming you have a Python 3.* environment set up:
 
 #### Install from PyPI
-Not yet available. Working on it.
+
+```bash
+pip install json2spark-mapper
+```
 
 #### Install from TestPyPI
 

@@ -16,10 +16,51 @@ from pyspark.sql.types import (
     TimestampType,
 )
 
+from .json_schema_drafts import JSON_DRAFTS, JsonDraft
+
 logger = logging.getLogger(__name__)
 
 
-def from_json_to_spark(schema) -> StructType:
+def from_json_to_spark(
+    schema,
+    default_json_draft: JsonDraft = JSON_DRAFTS.draft_2020_12,
+    force_json_draft: JsonDraft | None = None,
+) -> StructType:
+    """
+    Converts a Json schema into a Spark StructType.
+
+    Parameters:
+        schema: The json schema to convert.
+        default_json_draft (JsonDraft, optional): In case the json schema has no explicit version it can be set via this parameter. Defaults to "Draft 2020-12".
+        force_json_draft (JsonDraft, optional): In case a specific draft version needs to be used, ignoring the version specified in the json schema or provided via default_json_draft. Defaults to None.
+
+    Returns:
+        StructType
+    """
+
+    if force_json_draft is not None:
+        if JSON_DRAFTS.contains(force_json_draft):
+            json_draft = force_json_draft
+            logger.debug(f"Forcing draft: {json_draft}")
+        else:
+            raise ValueError(f"Invalid force draft version: {force_json_draft}")
+    elif "$version" in schema:
+        # get the version by url
+        json_draft = JSON_DRAFTS.get_by_schema_url(schema["$version"])
+        logger.debug(f"Using JSON document's draft: {json_draft}")
+    elif JSON_DRAFTS.contains(default_json_draft):
+        # use default
+        json_draft = default_json_draft
+        logger.debug(f"Using default draft: {json_draft}")
+    else:
+        raise ValueError(f"Invalid default draft version: {default_json_draft}")
+
+    logger.info(f"Using: {json_draft}")
+
+    return _from_json_to_spark(schema, json_draft)
+
+
+def _from_json_to_spark(schema, json_draft: JsonDraft | None = None) -> StructType:
     properties = schema["properties"]
     fields = []
     for key, value in properties.items():
@@ -65,7 +106,7 @@ def _map_json_type_to_spark_type(json_snippet):
             field_type = _convert_json_array(json_snippet)
         elif json_snippet["type"] == "object":
             logger.debug("Converting object...")
-            field_type = StructType(from_json_to_spark(json_snippet).fields)
+            field_type = StructType(_from_json_to_spark(json_snippet).fields)
         elif json_snippet["type"] == "null":
             field_type = NullType()
         elif json_snippet["type"] == "any":
@@ -266,7 +307,7 @@ def _convert_json_array(value):
 
 def _convert_regular_json_array(items_schemas):
     if items_schemas["type"] == "object":
-        field_type = ArrayType(StructType(from_json_to_spark(items_schemas).fields))
+        field_type = ArrayType(StructType(_from_json_to_spark(items_schemas).fields))
     elif isinstance(items_schemas["type"], list):
         # a multiple type array
         field_type = ArrayType(_map_multiple_json_types_to_spark_type(items_schemas))
@@ -286,7 +327,7 @@ def _convert_tuple_json_array(items_schemas):
     for item_schema in items_schemas:
         if item_schema["type"] == "object":
             logger.debug("Tuple items type is an object.")
-            tuple_field_type = StructType(from_json_to_spark(item_schema).fields)
+            tuple_field_type = StructType(_from_json_to_spark(item_schema).fields)
         else:
             tuple_field_type = _map_json_type_to_spark_type(item_schema)
 
