@@ -14,13 +14,17 @@ Spark has built in support for converting [Avro data types](https://avro.apache.
 
 This package provides a mapping function that can be used similar to how avro schemas are used whilst keeping all relevant details to create a StructType with optimal StructFields. See the [supported types](docs/types.md).
 
+> **Note:** Looking for feedback from users that take this for a spin to work with real life examples.
+
 ## How to use
 
 ### Install package
 First make sure you install the module into your environment. There are various options assuming you have a Python 3.* environment set up:
 
 #### Install from PyPI
-Not yet available. Working on it.
+```bash
+pip install json2spark-mapper
+```
 
 #### Install from TestPyPI
 
