@@ -2,6 +2,12 @@
 
 
 class JsonDraft:
+    __slots__ = (
+        "_name",
+        "_meta_id",
+        "_schema_url",
+    )
+
     def __init__(self, name: str, meta_id: str, schema_url: str | None):
         if name is None or type(name) != str or name == "":
             raise ValueError("JsonDraft requires a name (string)")
@@ -12,24 +18,39 @@ class JsonDraft:
         if schema_url is not None and (type(schema_url) != str or schema_url == ""):
             raise ValueError("JsonDraft requires a schema_url (string) when specified")
 
-        self.name = name
-        self.meta_id = meta_id
-        self.schema_url = schema_url
+        self._name = name
+        self._meta_id = meta_id
+        self._schema_url = schema_url
 
     def __eq__(self, other):
         if isinstance(other, JsonDraft):
             return (
-                self.name == other.name
-                and self.meta_id == other.meta_id
-                and self.schema_url == other.schema_url
+                self._name == other._name
+                and self._meta_id == other._meta_id
+                and self._schema_url == other._schema_url
             )
         return False
 
+    def __hash__(self):
+        return hash(self._name + self._meta_id + str(self._schema_url))
+
     def __str__(self):
-        return f"JSON Draft: {self.name}"
+        return f"JSON Draft: {self._name}"
 
     def contains_url(self, url: str) -> bool:
-        return self.schema_url == str
+        return self._schema_url == str
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def meta_id(self):
+        return self._meta_id
+
+    @property
+    def schema_url(self):
+        return self._schema_url
 
 
 class SupportedJsonDrafts:

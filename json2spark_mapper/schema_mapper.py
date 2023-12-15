@@ -16,7 +16,7 @@ from pyspark.sql.types import (
     TimestampType,
 )
 
-from .json_schema_drafts import JSON_DRAFTS, JsonDraft
+from .json_schema_drafts.drafts import JSON_DRAFTS, JsonDraft
 
 logger = logging.getLogger(__name__)
 
