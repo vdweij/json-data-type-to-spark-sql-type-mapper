@@ -15,7 +15,7 @@ class JsonType(Enum):
     OBJECT = 6
 
 
-class AbstractResolver(ABC):
+class Resolver(ABC):
     def __init__(self, name: str, json_type: JsonType, draft_support: set[JsonDraft]):
         if name is None or type(name) != str or name == "":
             raise ValueError("A resolver requires a name (string)")
@@ -34,46 +34,54 @@ class AbstractResolver(ABC):
             )
 
         self.name = name
+        self.json_type = json_type
+        self.draft_support = draft_support
 
     @abstractmethod
     def resolve(self, json_snippet: str) -> StructField:
         pass
 
-    def supports(self) -> bool:
-        return False
+    def supports(self, json_type: JsonType, json_draft: JsonDraft) -> bool:
+        return self.supports_json_type(json_type) and self.supports_json_draft(
+            json_draft
+        )
+
+    def supports_json_type(self, json_type: JsonType) -> bool:
+        return self.json_type == json_type
+
+    def supports_json_draft(self, json_draft: JsonDraft) -> bool:
+        return json_draft in self.draft_support
 
     def __str__(self):
         return f"JSON Draft: {self.name}"
 
 
 # Base abstract implementation
-
-
-class AbstractStringResolver(AbstractResolver):
+class AbstractStringResolver(Resolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, JsonType.STRING, draft_support)
 
 
-class AbstractIntegerResolver(AbstractResolver):
+class AbstractIntegerResolver(Resolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, JsonType.INTEGER, draft_support)
 
 
-class AbstractNumberResolver(AbstractResolver):
+class AbstractNumberResolver(Resolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, JsonType.NUMBER, draft_support)
 
 
-class AbstractBooleanResolver(AbstractResolver):
+class AbstractBooleanResolver(Resolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, JsonType.BOOLEAN, draft_support)
 
 
-class AbstractArrayResolver(AbstractResolver):
+class AbstractArrayResolver(Resolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, JsonType.ARRAY, draft_support)
 
 
-class AbstractObjectResolver(AbstractResolver):
+class AbstractObjectResolver(Resolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, JsonType.OBJECT, draft_support)

@@ -101,6 +101,20 @@ class SupportedJsonDrafts:
         schema_url="https://json-schema.org/draft/2020-12/schema",
     )
 
+    def get_all(self) -> set[JsonDraft]:
+        return {
+            self.draft_0,
+            self.draft_1,
+            self.draft_2,
+            self.draft_3,
+            self.draft_4,
+            self.draft_5,
+            self.draft_6,
+            self.draft_7,
+            self.draft_2019_09,
+            self.draft_2020_12,
+        }
+
     def contains(self, json_draft: JsonDraft) -> bool:
         if (
             self.draft_0 == json_draft
