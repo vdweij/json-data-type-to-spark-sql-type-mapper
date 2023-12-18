@@ -155,7 +155,7 @@ class TestAbstractResolvers(unittest.TestCase):
         def __init__(self, name: str, draft_support: set[JsonDraft]):
             super().__init__(name, draft_support)
 
-        def resolve(self, json_snippet: str):
+        def resolve(self, json_snippet: dict):
             return None
 
 

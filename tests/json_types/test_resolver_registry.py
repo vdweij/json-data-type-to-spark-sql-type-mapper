@@ -84,42 +84,42 @@ class TestResolverRegistry(unittest.TestCase):
         def __init__(self):
             super().__init__("TestStringResolver", {JSON_DRAFTS.draft_0})
 
-        def resolve(self, json_snippet: str):
+        def resolve(self, json_snippet: dict):
             return None
 
     class TestIntegerResolver(AbstractIntegerResolver):
         def __init__(self):
             super().__init__("TestIntegerResolver", {JSON_DRAFTS.draft_0})
 
-        def resolve(self, json_snippet: str):
+        def resolve(self, json_snippet: dict):
             return None
 
     class TestNumberResolver(AbstractNumberResolver):
         def __init__(self):
             super().__init__("TestNumberResolver", {JSON_DRAFTS.draft_0})
 
-        def resolve(self, json_snippet: str):
+        def resolve(self, json_snippet: dict):
             return None
 
     class TestBooleanResolver(AbstractBooleanResolver):
         def __init__(self):
             super().__init__("TestBooleanResolver", {JSON_DRAFTS.draft_0})
 
-        def resolve(self, json_snippet: str):
+        def resolve(self, json_snippet: dict):
             return None
 
     class TestArrayResolver(AbstractArrayResolver):
         def __init__(self):
             super().__init__("TestArrayResolver", {JSON_DRAFTS.draft_0})
 
-        def resolve(self, json_snippet: str):
+        def resolve(self, json_snippet: dict):
             return None
 
     class TestObjectResolver(AbstractObjectResolver):
         def __init__(self):
             super().__init__("TestObjectResolver", {JSON_DRAFTS.draft_0})
 
-        def resolve(self, json_snippet: str):
+        def resolve(self, json_snippet: dict):
             return None
 
     DRAFT_0_RESOLVERS = {
