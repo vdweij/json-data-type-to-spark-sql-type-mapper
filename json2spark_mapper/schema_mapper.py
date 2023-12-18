@@ -4,7 +4,6 @@ from pyspark.sql.types import (
     ArrayType,
     BooleanType,
     ByteType,
-    DateType,
     DoubleType,
     IntegerType,
     LongType,
@@ -13,10 +12,10 @@ from pyspark.sql.types import (
     StringType,
     StructField,
     StructType,
-    TimestampType,
 )
 
 from .json_schema_drafts.drafts import JSON_DRAFTS, JsonDraft
+from .json_types.string_resolver import DefaultStringResolver
 
 logger = logging.getLogger(__name__)
 
@@ -169,18 +168,7 @@ def _map_multiple_json_types_to_spark_type(json_snippet):
 
 
 def _convert_json_string(value):
-    logger.debug("Converting string...")
-
-    field_type = StringType()
-
-    if "format" in value:  # Need to check whether attribute is present first
-        logger.debug(f"String format found {value['format']}")
-        if value["format"] == "date-time":
-            field_type = TimestampType()
-        elif value["format"] == "date":
-            field_type = DateType()
-
-    return field_type
+    return DefaultStringResolver().resolve(value)
 
 
 def _convert_json_int(value):

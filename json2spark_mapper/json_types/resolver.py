@@ -38,7 +38,11 @@ class Resolver(ABC):
         self.draft_support = draft_support
 
     @abstractmethod
-    def resolve(self, json_snippet: str) -> StructField:
+    def resolve(self, json_snippet: dict) -> StructField:
+        pass
+
+    @abstractmethod
+    def supports_json_snippet(self, json_snippet: dict) -> bool:
         pass
 
     def supports(self, json_type: JsonType, json_draft: JsonDraft) -> bool:
@@ -61,27 +65,63 @@ class AbstractStringResolver(Resolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, JsonType.STRING, draft_support)
 
+    def supports_json_snippet(self, json_snippet: dict) -> bool:
+        if "type" in json_snippet and json_snippet["type"] == "string":
+            return True
+        else:
+            return False
+
 
 class AbstractIntegerResolver(Resolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, JsonType.INTEGER, draft_support)
+
+    def supports_json_snippet(self, json_snippet: dict) -> bool:
+        if "type" in json_snippet and json_snippet["type"] == "integer":
+            return True
+        else:
+            return False
 
 
 class AbstractNumberResolver(Resolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, JsonType.NUMBER, draft_support)
 
+    def supports_json_snippet(self, json_snippet: dict) -> bool:
+        if "type" in json_snippet and json_snippet["type"] == "number":
+            return True
+        else:
+            return False
+
 
 class AbstractBooleanResolver(Resolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, JsonType.BOOLEAN, draft_support)
+
+    def supports_json_snippet(self, json_snippet: dict) -> bool:
+        if "type" in json_snippet and json_snippet["type"] == "boolean":
+            return True
+        else:
+            return False
 
 
 class AbstractArrayResolver(Resolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, JsonType.ARRAY, draft_support)
 
+    def supports_json_snippet(self, json_snippet: dict) -> bool:
+        if "type" in json_snippet and json_snippet["type"] == "array":
+            return True
+        else:
+            return False
+
 
 class AbstractObjectResolver(Resolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, JsonType.OBJECT, draft_support)
+
+    def supports_json_snippet(self, json_snippet: dict) -> bool:
+        if "type" in json_snippet and json_snippet["type"] == "object":
+            return True
+        else:
+            return False
