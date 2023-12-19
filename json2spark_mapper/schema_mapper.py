@@ -3,7 +3,6 @@ import logging
 from pyspark.sql.types import (
     ArrayType,
     ByteType,
-    DoubleType,
     IntegerType,
     LongType,
     NullType,
@@ -15,6 +14,7 @@ from pyspark.sql.types import (
 
 from .json_schema_drafts.drafts import JSON_DRAFTS, JsonDraft
 from .json_types.boolean_resolver import DefaultBooleanResolver
+from .json_types.number_resolver import DefaultNumberResolver
 from .json_types.string_resolver import DefaultStringResolver
 
 logger = logging.getLogger(__name__)
@@ -213,21 +213,7 @@ def _convert_json_int(value):
 
 
 def _convert_json_number(value):
-    # This is also tricky as there are many Spark types that can be mapped to a number
-    #
-    # - FloatType: Represents 4-byte single-precision floating point numbers.
-    # - DoubleType: Represents 8-byte double-precision floating point numbers.
-    #
-    # And optionally
-    # - DecimalType: Represents arbitrary-precision signed decimal numbers. Backed internally by java.math.BigDecimal.
-    #   A BigDecimal consists of an arbitrary precision integer unscaled value and a 32-bit integer scale.
-    #
-    # https://spark.apache.org/docs/latest/sql-ref-datatypes.html
-    #
-    #
-    field_type = DoubleType()
-    # There is no way to know to purpose of the value. To be on the safe side use DoubleType
-    return field_type
+    return DefaultNumberResolver().resolve(value)
 
 
 def _determine_inclusive_range(value):
