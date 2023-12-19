@@ -2,11 +2,7 @@ import logging
 
 from pyspark.sql.types import (
     ArrayType,
-    ByteType,
-    IntegerType,
-    LongType,
     NullType,
-    ShortType,
     StringType,
     StructField,
     StructType,
@@ -14,6 +10,7 @@ from pyspark.sql.types import (
 
 from .json_schema_drafts.drafts import JSON_DRAFTS, JsonDraft
 from .json_types.boolean_resolver import DefaultBooleanResolver
+from .json_types.integer_resolver import Draft3OnwardsIntegerResolver
 from .json_types.number_resolver import DefaultNumberResolver
 from .json_types.string_resolver import DefaultStringResolver
 
@@ -172,66 +169,11 @@ def _convert_json_string(value):
 
 
 def _convert_json_int(value):
-    # This is tricky as there are many Spark types that can be mapped to an int
-    #
-    # ByteType: Represents 1-byte signed integer numbers. The range of numbers is from -128 to 127.
-    # ShortType: Represents 2-byte signed integer numbers. The range of numbers is from -32768 to 32767.
-    # IntegerType: Represents 4-byte signed integer numbers. The range of numbers is from -2147483648 to 2147483647.
-    # LongType: Represents 8-byte signed integer numbers. The range of numbers is from -9223372036854775808 to 9223372036854775807.
-    #
-    # https://spark.apache.org/docs/latest/sql-ref-datatypes.html
-    #
-    # For instance 20230214110547 fits in a json int, but not in a Spark IntegerType
-    #
-    logger.debug("Converting integer...")
-
-    field_type = LongType()
-    determined_range = _determine_inclusive_range(value)
-    if determined_range["defined"]:
-        # max value of range is exclusive
-        byte_type_range = range(-128, 127 + 1)
-        short_type_range = range(-32768, 32767 + 1)
-        int_type_range = range(-2147483648, 2147483647 + 1)
-
-        if (
-            determined_range["min"] in byte_type_range
-            and determined_range["max"] in byte_type_range
-        ):
-            field_type = ByteType()
-        elif (
-            determined_range["min"] in short_type_range
-            and determined_range["max"] in short_type_range
-        ):
-            field_type = ShortType()
-        elif (
-            determined_range["min"] in int_type_range
-            and determined_range["max"] in int_type_range
-        ):
-            field_type = IntegerType()
-
-    return field_type
+    return Draft3OnwardsIntegerResolver().resolve(value)
 
 
 def _convert_json_number(value):
     return DefaultNumberResolver().resolve(value)
-
-
-def _determine_inclusive_range(value):
-    range = {"min": None, "max": None, "defined": False}
-
-    if "minimum" in value:
-        range["min"] = int(value["minimum"])
-    if "exclusiveMinimum" in value:
-        range["min"] = int(value["exclusiveMinimum"]) - 1
-    if "maximum" in value:
-        range["max"] = int(value["maximum"])
-    if "exclusiveMaximum" in value:
-        range["max"] = int(value["exclusiveMaximum"]) - 1
-
-    if range["min"] is not None and range["max"] is not None:
-        range["defined"] = True
-
-    return range
 
 
 def _convert_json_array(value):
