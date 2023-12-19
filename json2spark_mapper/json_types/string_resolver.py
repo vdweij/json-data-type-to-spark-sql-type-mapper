@@ -15,7 +15,7 @@ class DefaultStringResolver(AbstractStringResolver):
     logger = logging.getLogger(__name__)
 
     def __init__(self):
-        super().__init__("Defaul String Resolver", JSON_DRAFTS.get_all())
+        super().__init__("Default String Resolver", JSON_DRAFTS.get_all())
 
     def resolve(self, json_snippet: dict) -> StructField:
         self.logger.debug("Converting string...")
