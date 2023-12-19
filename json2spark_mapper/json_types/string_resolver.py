@@ -24,6 +24,9 @@ class DefaultStringResolver(AbstractStringResolver):
 
         if "format" in json_snippet:  # Need to check whether attribute is present first
             self.logger.debug(f"String format found {json_snippet['format']}")
+            # From draft-00 string type supports the format keyword
+            # https://json-schema.org/draft-07/json-schema-release-notes#formats
+            # https://json-schema.org/draft/2019-09/release-notes#format-vocabulary
             if json_snippet["format"] == "date-time":
                 field_type = TimestampType()
             elif json_snippet["format"] == "date":

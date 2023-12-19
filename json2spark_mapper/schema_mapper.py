@@ -2,7 +2,6 @@ import logging
 
 from pyspark.sql.types import (
     ArrayType,
-    BooleanType,
     ByteType,
     DoubleType,
     IntegerType,
@@ -15,6 +14,7 @@ from pyspark.sql.types import (
 )
 
 from .json_schema_drafts.drafts import JSON_DRAFTS, JsonDraft
+from .json_types.boolean_resolver import DefaultBooleanResolver
 from .json_types.string_resolver import DefaultStringResolver
 
 logger = logging.getLogger(__name__)
@@ -94,7 +94,7 @@ def _map_json_type_to_spark_type(json_snippet):
         elif json_snippet["type"] == "string":
             field_type = _convert_json_string(json_snippet)
         elif json_snippet["type"] == "boolean":
-            field_type = BooleanType()
+            field_type = DefaultBooleanResolver().resolve(json_snippet)
         elif json_snippet["type"] == "integer":
             # This is tricky as there are many Spark types that can be mapped to an int
             field_type = _convert_json_int(json_snippet)
