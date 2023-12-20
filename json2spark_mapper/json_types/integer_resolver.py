@@ -1,5 +1,6 @@
 import logging
 from abc import abstractmethod
+from collections.abc import Callable
 
 from pyspark.sql.types import (
     ByteType,
@@ -7,6 +8,7 @@ from pyspark.sql.types import (
     LongType,
     ShortType,
     StructField,
+    StructType,
 )
 
 from ..json_schema_drafts.drafts import JSON_DRAFTS, JsonDraft
@@ -27,7 +29,11 @@ class BaseIntegerResolver(AbstractIntegerResolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, draft_support)
 
-    def resolve(self, json_snippet: dict) -> StructField:
+    def resolve(
+        self,
+        json_snippet: dict,
+        schema_reader_callback: Callable[[dict], StructType] | None = None,
+    ) -> StructField:
         # This is tricky as there are many Spark types that can be mapped to an int
         #
         # ByteType: Represents 1-byte signed integer numbers. The range of numbers is from -128 to 127.

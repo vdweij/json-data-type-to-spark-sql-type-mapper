@@ -1,9 +1,11 @@
 import logging
+from collections.abc import Callable
 
 from pyspark.sql.types import (
     DateType,
     StringType,
     StructField,
+    StructType,
     TimestampType,
 )
 
@@ -17,7 +19,11 @@ class DefaultStringResolver(AbstractStringResolver):
     def __init__(self):
         super().__init__("Default String Resolver", JSON_DRAFTS.get_all())
 
-    def resolve(self, json_snippet: dict) -> StructField:
+    def resolve(
+        self,
+        json_snippet: dict,
+        schema_reader_callback: Callable[[dict], StructType] | None = None,
+    ) -> StructField:
         self.logger.debug("Converting string...")
 
         field_type = StringType()

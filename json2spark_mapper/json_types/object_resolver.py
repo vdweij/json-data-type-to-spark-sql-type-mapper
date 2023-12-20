@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Callable
 
 from pyspark.sql.types import (
     StructField,
@@ -24,12 +25,15 @@ class DefaultObjectResolver(AbstractObjectResolver):
             {JSON_DRAFTS.draft_7, JSON_DRAFTS.draft_2019_09, JSON_DRAFTS.draft_2020_12},
         )
 
-    def resolve(self, json_snippet: dict) -> StructField:
+    def resolve(
+        self,
+        json_snippet: dict,
+        schema_reader_callback: Callable[[dict], StructType] | None,
+    ) -> StructField:
         self.logger.debug("Converting object...")
-        raise NotImplementedError(
-            "Need to traverse... a reference to resolver delegator is needed"
-        )
-        return StructType()
+        if schema_reader_callback is None:
+            raise ValueError("A callable to a schema reader is required")
+        return StructType(schema_reader_callback(json_snippet).fields)
 
 
 class NoneObjectResolver(AbstractObjectResolver):
@@ -55,7 +59,11 @@ class NoneObjectResolver(AbstractObjectResolver):
             },
         )
 
-    def resolve(self, json_snippet: dict) -> StructField:
+    def resolve(
+        self,
+        json_snippet: dict,
+        schema_reader_callback: Callable[[dict], StructType] | None,
+    ) -> StructField:
         self.logger.debug("Converting object...")
         raise TypeError(
             "The configured json spec does not support the object type that was introduced in draft-07"

@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from enum import Enum
 
-from pyspark.sql.types import StructField
+from pyspark.sql.types import StructField, StructType
 
 from ..json_schema_drafts.drafts import JsonDraft
 
@@ -38,7 +39,11 @@ class Resolver(ABC):
         self.draft_support = draft_support
 
     @abstractmethod
-    def resolve(self, json_snippet: dict) -> StructField:
+    def resolve(
+        self,
+        json_snippet: dict,
+        schema_reader_callback: Callable[[dict], StructType] | None,
+    ) -> StructField:
         pass
 
     @abstractmethod

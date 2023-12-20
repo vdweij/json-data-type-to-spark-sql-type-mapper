@@ -8,6 +8,8 @@ from pyspark.sql.types import (
     StructType,
 )
 
+from json2spark_mapper.json_types.object_resolver import DefaultObjectResolver
+
 from .json_schema_drafts.drafts import JSON_DRAFTS, JsonDraft
 from .json_types.boolean_resolver import DefaultBooleanResolver
 from .json_types.integer_resolver import Draft3OnwardsIntegerResolver
@@ -102,6 +104,9 @@ def _map_json_type_to_spark_type(json_snippet):
             field_type = _convert_json_array(json_snippet)
         elif json_snippet["type"] == "object":
             logger.debug("Converting object...")
+            field_type = DefaultObjectResolver().resolve(
+                json_snippet, _from_json_to_spark
+            )
             field_type = StructType(_from_json_to_spark(json_snippet).fields)
         elif json_snippet["type"] == "null":
             field_type = NullType()

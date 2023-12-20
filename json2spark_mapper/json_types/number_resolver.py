@@ -1,9 +1,7 @@
 import logging
+from collections.abc import Callable
 
-from pyspark.sql.types import (
-    DoubleType,
-    StructField,
-)
+from pyspark.sql.types import DoubleType, StructField, StructType
 
 from ..json_schema_drafts.drafts import JSON_DRAFTS
 from .resolver import AbstractNumberResolver
@@ -15,7 +13,11 @@ class DefaultNumberResolver(AbstractNumberResolver):
     def __init__(self):
         super().__init__("Default Number Resolver", JSON_DRAFTS.get_all())
 
-    def resolve(self, json_snippet: dict) -> StructField:
+    def resolve(
+        self,
+        json_snippet: dict,
+        schema_reader_callback: Callable[[dict], StructType] | None = None,
+    ) -> StructField:
         self.logger.debug("Converting number...")
 
         # This is also tricky as there are many Spark types that can be mapped to a number
