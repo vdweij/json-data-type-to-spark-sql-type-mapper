@@ -20,6 +20,9 @@
 # sys.path.append(".")
 """
 import unittest
+from collections.abc import Callable
+
+from pyspark.sql.types import StructType
 
 from json2spark_mapper.json_schema_drafts.drafts import JsonDraft, SupportedJsonDrafts
 from json2spark_mapper.json_types.resolver import (
@@ -155,7 +158,11 @@ class TestAbstractResolvers(unittest.TestCase):
         def __init__(self, name: str, draft_support: set[JsonDraft]):
             super().__init__(name, draft_support)
 
-        def resolve(self, json_snippet: dict):
+        def resolve(
+            self,
+            json_snippet: dict,
+            schema_reader_callback: Callable[[dict], StructType] | None,
+        ):
             return None
 
 
