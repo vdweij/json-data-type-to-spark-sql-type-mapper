@@ -20,6 +20,9 @@
 # sys.path.append(".")
 """
 import unittest
+from collections.abc import Callable
+
+from pyspark.sql.types import StructType
 
 from json2spark_mapper.json_schema_drafts.drafts import JSON_DRAFTS
 from json2spark_mapper.json_types.resolver import (
@@ -62,16 +65,16 @@ class TestResolverRegistry(unittest.TestCase):
         self.assertEqual(str(context.exception), expected_msg)
 
     def test_creation_of_registry_incomplete_resolvers(self):
-        expected_msg_start = "No support found for json type"
+        expected_msg_start = "Could not find a resolver for json type"
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(LookupError) as context:
             ResolverRegistry(
                 JSON_DRAFTS.draft_0, {TestResolverRegistry.TestStringResolver()}
             )
         self.assertTrue(str(context.exception).startswith(expected_msg_start))
 
         # wrong draft
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(LookupError) as context:
             ResolverRegistry(
                 JSON_DRAFTS.draft_1, TestResolverRegistry.DRAFT_0_RESOLVERS
             )
@@ -84,42 +87,66 @@ class TestResolverRegistry(unittest.TestCase):
         def __init__(self):
             super().__init__("TestStringResolver", {JSON_DRAFTS.draft_0})
 
-        def resolve(self, json_snippet: dict):
+        def resolve(
+            self,
+            json_snippet: dict,
+            schema_reader_callback: Callable[[dict], StructType] | None,
+        ):
             return None
 
     class TestIntegerResolver(AbstractIntegerResolver):
         def __init__(self):
             super().__init__("TestIntegerResolver", {JSON_DRAFTS.draft_0})
 
-        def resolve(self, json_snippet: dict):
+        def resolve(
+            self,
+            json_snippet: dict,
+            schema_reader_callback: Callable[[dict], StructType] | None,
+        ):
             return None
 
     class TestNumberResolver(AbstractNumberResolver):
         def __init__(self):
             super().__init__("TestNumberResolver", {JSON_DRAFTS.draft_0})
 
-        def resolve(self, json_snippet: dict):
+        def resolve(
+            self,
+            json_snippet: dict,
+            schema_reader_callback: Callable[[dict], StructType] | None,
+        ):
             return None
 
     class TestBooleanResolver(AbstractBooleanResolver):
         def __init__(self):
             super().__init__("TestBooleanResolver", {JSON_DRAFTS.draft_0})
 
-        def resolve(self, json_snippet: dict):
+        def resolve(
+            self,
+            json_snippet: dict,
+            schema_reader_callback: Callable[[dict], StructType] | None,
+        ):
             return None
 
     class TestArrayResolver(AbstractArrayResolver):
         def __init__(self):
             super().__init__("TestArrayResolver", {JSON_DRAFTS.draft_0})
 
-        def resolve(self, json_snippet: dict):
+        def resolve(
+            self,
+            json_snippet: dict,
+            schema_reader_callback: Callable[[dict], StructType] | None,
+        ):
             return None
 
     class TestObjectResolver(AbstractObjectResolver):
         def __init__(self):
             super().__init__("TestObjectResolver", {JSON_DRAFTS.draft_0})
 
-        def resolve(self, json_snippet: dict):
+        def resolve(
+            self,
+            json_snippet: dict,
+            schema_reader_callback: Callable[[dict], StructType] | None,
+        ):
             return None
 
     DRAFT_0_RESOLVERS = {

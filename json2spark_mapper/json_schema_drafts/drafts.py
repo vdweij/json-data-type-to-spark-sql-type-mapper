@@ -101,6 +101,9 @@ class SupportedJsonDrafts:
         schema_url="https://json-schema.org/draft/2020-12/schema",
     )
 
+    def get_latest(self) -> JsonDraft:
+        return self.draft_2020_12
+
     def get_all(self) -> set[JsonDraft]:
         return {
             self.draft_0,

@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+import logging  # allows using forward references for type hints
+
 from ..json_schema_drafts.drafts import JsonDraft
 from .resolver import JsonType, Resolver
 
@@ -41,23 +45,27 @@ class ResolverRegistry:
     def _validate_resolvers_coverage(self):
         # Each combination of json type and draft version should be handled by a resolver
         for json_type in JsonType:
-            if self.get_resolver(json_type) is None:
-                raise ValueError(
-                    f"No support found for json type {json_type} and draft version {self.json_draft}"
-                )
+            self.get_resolver(json_type)  # in case not found an error is raised
 
     def supports(self, json_draft: JsonDraft) -> bool:
         return self.json_draft == json_draft
 
-    def get_resolver(self, json_type: JsonType) -> Resolver | None:
+    def get_resolver(self, json_type: JsonType) -> Resolver:
         for resolver in self.resolvers:
             if resolver.supports(json_type, self.json_draft):
                 return resolver
 
-        return None
+        raise LookupError(
+            f"Could not find a resolver for json type {json_type} in registry"
+        )
+
+    def copy(self, json_draft: JsonDraft) -> ResolverRegistry:
+        return ResolverRegistry(json_draft, self.resolvers)
 
 
 class ResolverRegistryBuilder:
+    logger = logging.getLogger(__name__)
+
     def __init__(self, json_draft: JsonDraft):
         if json_draft is None or type(json_draft) != JsonDraft:
             raise ValueError("A valid json draft should be specified")
@@ -69,34 +77,34 @@ class ResolverRegistryBuilder:
         self.array_resolver: Resolver | None = None
         self.object_resolver: Resolver | None = None
 
-    def addStringResolver(self, resolver: Resolver):
+    def addStringResolver(self, resolver: Resolver) -> ResolverRegistryBuilder:
         self._check_type(JsonType.STRING, resolver)
         self.string_resolver = resolver
         return self
 
-    def addIntegerResolver(self, resolver: Resolver):
+    def addIntegerResolver(self, resolver: Resolver) -> ResolverRegistryBuilder:
         self._check_type(JsonType.INTEGER, resolver)
-        self.string_resolver = resolver
+        self.integer_resolver = resolver
         return self
 
-    def addNumberResolver(self, resolver: Resolver):
+    def addNumberResolver(self, resolver: Resolver) -> ResolverRegistryBuilder:
         self._check_type(JsonType.NUMBER, resolver)
-        self.string_resolver = resolver
+        self.number_resolver = resolver
         return self
 
-    def addBooleanResolver(self, resolver: Resolver):
+    def addBooleanResolver(self, resolver: Resolver) -> ResolverRegistryBuilder:
         self._check_type(JsonType.BOOLEAN, resolver)
-        self.string_resolver = resolver
+        self.boolean_resolver = resolver
         return self
 
-    def addArrayResolver(self, resolver: Resolver):
+    def addArrayResolver(self, resolver: Resolver) -> ResolverRegistryBuilder:
         self._check_type(JsonType.ARRAY, resolver)
-        self.string_resolver = resolver
+        self.array_resolver = resolver
         return self
 
-    def addObjectResolver(self, resolver: Resolver):
+    def addObjectResolver(self, resolver: Resolver) -> ResolverRegistryBuilder:
         self._check_type(JsonType.OBJECT, resolver)
-        self.string_resolver = resolver
+        self.object_resolver = resolver
         return self
 
     def build(self) -> ResolverRegistry:
