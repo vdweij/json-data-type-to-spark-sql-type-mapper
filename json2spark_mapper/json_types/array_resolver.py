@@ -1,7 +1,6 @@
 import logging
-from array import ArrayType
 
-from pyspark.sql.types import StringType, StructField, StructType
+from pyspark.sql.types import ArrayType, StringType, StructField, StructType
 
 from ..json_schema_drafts.drafts import JSON_DRAFTS
 from .resolver import AbstractArrayResolver, PropertyResolver

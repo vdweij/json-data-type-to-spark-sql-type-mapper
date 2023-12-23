@@ -113,9 +113,10 @@ class ResolverAwareReader(Reader, PropertyResolver):
                     JsonType.NUMBER
                 ).resolve(json_snippet, self)
             elif json_snippet["type"] == "array":
-                field_type = self._convert_json_array(json_snippet)
+                field_type = self.resolver_registry.get_resolver(
+                    JsonType.ARRAY
+                ).resolve(json_snippet, self)
             elif json_snippet["type"] == "object":
-                self.logger.debug("Converting object...")
                 field_type = self.resolver_registry.get_resolver(
                     JsonType.OBJECT
                 ).resolve(json_snippet, self)
@@ -175,82 +176,6 @@ class ResolverAwareReader(Reader, PropertyResolver):
                 field_type = StringType()
         else:
             field_type = StringType()
-
-        return field_type
-
-    def _convert_json_array(self, value):
-        # Convert JSON array with either equal-types or different types.
-        #
-        # JSON arrays com in two forms; the first is a regular array containing a collections of elements of a specific type.
-        # The second is the tuple in which elements at different indexes can have different types.
-        #
-        # The regular array maps perfectly to the Spark ArrayType. The Tuple coudld be represented by a
-        # StructType with 'nameless' fields. Spark does create names following a pattern of "col1," "col2," and so on,
-        # based on the index of the field within the schema.
-
-        self.logger.debug("Converting array...")
-
-        if "items" in value:
-            items_schemas = value["items"]
-
-            # Check for a dictionary or list (array) of types
-            if isinstance(items_schemas, dict):
-                field_type = self._convert_regular_json_array(items_schemas)
-            elif isinstance(items_schemas, list):
-                self.logger.debug("Tuple detected...")
-                # This is an array containing a tuple
-                # Check whether it has a additionalItems property
-                if "additionalItems" in value and value["additionalItems"] is False:
-                    field_type = self._convert_tuple_json_array(items_schemas)
-                else:
-                    # This tuple can contain more types than specified. It's only safe to return a string based array
-                    self.logger.debug("Tuple can contain more than specified types.")
-                    field_type = ArrayType(StringType())
-            else:
-                raise Exception(
-                    f"Expected a least one type definition in an array: {value}"
-                )
-
-        elif "contains" in value:
-            # JSON array is can contain whatever types, but should at least contain a specific type.
-            # This type is irrelevant because all other types need to fit the array. The only option
-            # is to map it to a string based array.
-            field_type = ArrayType(StringType())
-        else:
-            # Unable to map array type, or should a string based array be returned instead?
-            raise ValueError(f"Invalid array definition: {value}")
-
-        return field_type
-
-    def _convert_regular_json_array(self, items_schemas):
-        if items_schemas["type"] == "object":
-            element_type = StructType(self.resolve_properties(items_schemas).fields)
-        else:
-            # This is regular array containing a single type
-            element_type = self.resolve_property_type(items_schemas)
-
-        return ArrayType(element_type)
-
-    def _convert_tuple_json_array(self, items_schemas):
-        # Loop over item schemas and store type as StructType field
-
-        struct_type_fields = []
-        for item_schema in items_schemas:
-            if item_schema["type"] == "object":
-                self.logger.debug("Tuple items type is an object.")
-                tuple_field_type = StructType(
-                    self.resolve_properties(item_schema).fields
-                )
-            else:
-                tuple_field_type = self.resolve_property_type(item_schema)
-
-            # TODO: check nullable
-            nullable = True
-            field_name = ""  # Spark will assign col1, col2 etc
-            struct_type_fields.append(
-                StructField(field_name, tuple_field_type, nullable)
-            )
-        field_type = StructType(struct_type_fields)
 
         return field_type
 
