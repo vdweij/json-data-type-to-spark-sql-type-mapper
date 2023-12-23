@@ -1,5 +1,4 @@
 import logging
-from collections.abc import Callable
 
 from pyspark.sql.types import (
     StructField,
@@ -7,7 +6,7 @@ from pyspark.sql.types import (
 )
 
 from ..json_schema_drafts.drafts import JSON_DRAFTS
-from .resolver import AbstractObjectResolver
+from .resolver import AbstractObjectResolver, PropertyResolver
 
 
 class DefaultObjectResolver(AbstractObjectResolver):
@@ -28,12 +27,12 @@ class DefaultObjectResolver(AbstractObjectResolver):
     def resolve(
         self,
         json_snippet: dict,
-        schema_reader_callback: Callable[[dict], StructType] | None,
+        property_resolver: PropertyResolver | None,
     ) -> StructField:
         self.logger.debug("Converting object...")
-        if schema_reader_callback is None:
-            raise ValueError("A callable to a schema reader is required")
-        return StructType(schema_reader_callback(json_snippet).fields)
+        if property_resolver is None:
+            raise ValueError("A property resolver is required")
+        return StructType(property_resolver.resolve_properties(json_snippet).fields)
 
 
 class NoneObjectResolver(AbstractObjectResolver):
@@ -62,7 +61,7 @@ class NoneObjectResolver(AbstractObjectResolver):
     def resolve(
         self,
         json_snippet: dict,
-        schema_reader_callback: Callable[[dict], StructType] | None,
+        property_resolver: PropertyResolver | None,
     ) -> StructField:
         self.logger.debug("Converting object...")
         raise TypeError(

@@ -20,22 +20,20 @@
 # sys.path.append(".")
 """
 import unittest
-from collections.abc import Callable
-
-from pyspark.sql.types import StructType
 
 from json2spark_mapper.json_schema_drafts.drafts import JsonDraft, SupportedJsonDrafts
 from json2spark_mapper.json_types.resolver import (
     AbstractStringResolver,
     JsonType,
-    Resolver,
+    PropertyResolver,
+    TypeResolver,
 )
 
 
 class TestAbstractResolvers(unittest.TestCase):
     def test_creation_of_abstract_class(self):
         with self.assertRaises(TypeError) as context:
-            Resolver()
+            TypeResolver()
         self.assertTrue(
             str(context.exception).startswith("Can't instantiate abstract class")
         )
@@ -44,17 +42,23 @@ class TestAbstractResolvers(unittest.TestCase):
         # None name
         with self.assertRaises(ValueError) as context1:
             TestAbstractResolvers.TestStringResolver(None, None)
-        self.assertEqual(str(context1.exception), "A resolver requires a name (string)")
+        self.assertEqual(
+            str(context1.exception), "A type resolver requires a name (string)"
+        )
 
         # wrong type name
         with self.assertRaises(ValueError) as context1:
             TestAbstractResolvers.TestStringResolver(True, None)
-        self.assertEqual(str(context1.exception), "A resolver requires a name (string)")
+        self.assertEqual(
+            str(context1.exception), "A type resolver requires a name (string)"
+        )
 
         # empty type name
         with self.assertRaises(ValueError) as context1:
             TestAbstractResolvers.TestStringResolver("", None)
-        self.assertEqual(str(context1.exception), "A resolver requires a name (string)")
+        self.assertEqual(
+            str(context1.exception), "A type resolver requires a name (string)"
+        )
 
     def test_creation_of_string_resolver_invalid_draft_param(self):
         # None set
@@ -161,7 +165,7 @@ class TestAbstractResolvers(unittest.TestCase):
         def resolve(
             self,
             json_snippet: dict,
-            schema_reader_callback: Callable[[dict], StructType] | None,
+            property_resolver: PropertyResolver | None,
         ):
             return None
 

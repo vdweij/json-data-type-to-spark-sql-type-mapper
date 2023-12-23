@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
-from collections.abc import Callable
 from enum import Enum
 
-from pyspark.sql.types import StructField, StructType
+from pyspark.sql.types import DataType, StructField, StructType
 
 from ..json_schema_drafts.drafts import JsonDraft
 
@@ -16,13 +15,23 @@ class JsonType(Enum):
     OBJECT = 6
 
 
-class Resolver(ABC):
+class PropertyResolver(ABC):
+    @abstractmethod
+    def resolve_properties(self, json_snippet: dict) -> StructType:
+        pass
+
+    @abstractmethod
+    def resolve_property_type(self, json_snippet: dict) -> DataType:
+        pass
+
+
+class TypeResolver(ABC):
     def __init__(self, name: str, json_type: JsonType, draft_support: set[JsonDraft]):
         if name is None or type(name) != str or name == "":
-            raise ValueError("A resolver requires a name (string)")
+            raise ValueError("A type resolver requires a name (string)")
 
         if json_type is None or type(json_type) != JsonType:
-            raise ValueError("A resolver requires a json_type (JsonType)")
+            raise ValueError("A type resolver requires a json_type (JsonType)")
 
         if (
             draft_support is None
@@ -42,7 +51,7 @@ class Resolver(ABC):
     def resolve(
         self,
         json_snippet: dict,
-        schema_reader_callback: Callable[[dict], StructType] | None,
+        property_resolver: PropertyResolver | None,
     ) -> StructField:
         pass
 
@@ -66,7 +75,7 @@ class Resolver(ABC):
 
 
 # Base abstract implementation
-class AbstractStringResolver(Resolver):
+class AbstractStringResolver(TypeResolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, JsonType.STRING, draft_support)
 
@@ -77,7 +86,7 @@ class AbstractStringResolver(Resolver):
             return False
 
 
-class AbstractIntegerResolver(Resolver):
+class AbstractIntegerResolver(TypeResolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, JsonType.INTEGER, draft_support)
 
@@ -88,7 +97,7 @@ class AbstractIntegerResolver(Resolver):
             return False
 
 
-class AbstractNumberResolver(Resolver):
+class AbstractNumberResolver(TypeResolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, JsonType.NUMBER, draft_support)
 
@@ -99,7 +108,7 @@ class AbstractNumberResolver(Resolver):
             return False
 
 
-class AbstractBooleanResolver(Resolver):
+class AbstractBooleanResolver(TypeResolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, JsonType.BOOLEAN, draft_support)
 
@@ -110,7 +119,7 @@ class AbstractBooleanResolver(Resolver):
             return False
 
 
-class AbstractArrayResolver(Resolver):
+class AbstractArrayResolver(TypeResolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, JsonType.ARRAY, draft_support)
 
@@ -121,7 +130,7 @@ class AbstractArrayResolver(Resolver):
             return False
 
 
-class AbstractObjectResolver(Resolver):
+class AbstractObjectResolver(TypeResolver):
     def __init__(self, name: str, draft_support: set[JsonDraft]):
         super().__init__(name, JsonType.OBJECT, draft_support)
 

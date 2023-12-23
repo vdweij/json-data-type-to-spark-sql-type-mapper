@@ -10,7 +10,7 @@ from pyspark.sql.types import (
     StructType,
 )
 
-from json2spark_mapper.json_types.resolver import JsonType
+from json2spark_mapper.json_types.resolver import JsonType, PropertyResolver
 
 from ..json_schema_drafts.drafts import JSON_DRAFTS, JsonDraft
 from ..json_types.resolver_registry import ResolverRegistry
@@ -27,7 +27,7 @@ class Reader(ABC):
         pass
 
 
-class ResolverAwareReader(Reader):
+class ResolverAwareReader(Reader, PropertyResolver):
     logger = logging.getLogger(__name__)
 
     def __init__(self, resolver_registries: set[ResolverRegistry]):
@@ -63,15 +63,15 @@ class ResolverAwareReader(Reader):
         self.logger.info("Resolver registry selected, ready for processing...")
 
         # process
-        return self._from_json_to_spark(json_schema)
+        return self.resolve_properties(json_schema)
 
-    def _from_json_to_spark(self, json_schema: dict) -> StructType:
+    def resolve_properties(self, json_schema: dict) -> StructType:
         properties = json_schema["properties"]
         fields = []
         for key, value in properties.items():
             self.logger.debug(f"Determining type for: {key}")
 
-            field_type = self._map_json_type_to_spark_type(value)
+            field_type = self.resolve_property_type(value)
 
             self.logger.debug(f"Resolved key {key} to type {field_type.typeName}")
 
@@ -90,7 +90,7 @@ class ResolverAwareReader(Reader):
             fields.append(StructField(key, field_type, nullable))
         return StructType(fields)
 
-    def _map_json_type_to_spark_type(self, json_snippet: dict) -> DataType:
+    def resolve_property_type(self, json_snippet: dict) -> DataType:
         field_type = None
         if "type" in json_snippet:
             if isinstance(json_snippet["type"], list):
@@ -99,26 +99,26 @@ class ResolverAwareReader(Reader):
             elif json_snippet["type"] == "string":
                 field_type = self.resolver_registry.get_resolver(
                     JsonType.STRING
-                ).resolve(json_snippet, self._from_json_to_spark)
+                ).resolve(json_snippet, self)
             elif json_snippet["type"] == "boolean":
                 field_type = self.resolver_registry.get_resolver(
                     JsonType.BOOLEAN
-                ).resolve(json_snippet, self._from_json_to_spark)
+                ).resolve(json_snippet, self)
             elif json_snippet["type"] == "integer":
                 field_type = self.resolver_registry.get_resolver(
                     JsonType.INTEGER
-                ).resolve(json_snippet, self._from_json_to_spark)
+                ).resolve(json_snippet, self)
             elif json_snippet["type"] == "number":
                 field_type = self.resolver_registry.get_resolver(
                     JsonType.NUMBER
-                ).resolve(json_snippet, self._from_json_to_spark)
+                ).resolve(json_snippet, self)
             elif json_snippet["type"] == "array":
                 field_type = self._convert_json_array(json_snippet)
             elif json_snippet["type"] == "object":
                 self.logger.debug("Converting object...")
                 field_type = self.resolver_registry.get_resolver(
                     JsonType.OBJECT
-                ).resolve(json_snippet, self._from_json_to_spark)
+                ).resolve(json_snippet, self)
             elif json_snippet["type"] == "null":
                 field_type = NullType()
             elif json_snippet["type"] == "any":
@@ -154,21 +154,21 @@ class ResolverAwareReader(Reader):
             # only an empty array as value is allowed (weird definition, but valid)
             field_type = ArrayType(StringType())
         elif len(json_snippet["type"]) == 1:
-            field_type = self._map_json_type_to_spark_type(json_snippet["type"][0])
+            field_type = self.resolve_property_type(json_snippet["type"][0])
         elif len(json_snippet["type"]) == 2:  # noqa PLR2004
             if json_snippet["type"][0] == "null":
                 org_types_value = json_snippet["type"]  # copy original value
                 json_snippet["type"] = org_types_value[
                     1
                 ]  # temp overwrite type to single type
-                field_type = self._map_json_type_to_spark_type(json_snippet)
+                field_type = self.resolve_property_type(json_snippet)
                 json_snippet["type"] = org_types_value  # copy orginal value back
             elif json_snippet["type"][1] == "null":
                 org_types_value = json_snippet["type"]  # copy original value
                 json_snippet["type"] = org_types_value[
                     0
                 ]  # temp overwrite type to single type
-                field_type = self._map_json_type_to_spark_type(json_snippet)
+                field_type = self.resolve_property_type(json_snippet)
                 json_snippet["type"] = org_types_value  # copy orginal value back
             else:
                 # multiple types, only safe type is a string based array
@@ -224,15 +224,10 @@ class ResolverAwareReader(Reader):
 
     def _convert_regular_json_array(self, items_schemas):
         if items_schemas["type"] == "object":
-            element_type = StructType(self._from_json_to_spark(items_schemas).fields)
-        elif isinstance(items_schemas["type"], list):
-            # a multiple type array
-            element_type = self._map_multiple_json_types_to_spark_type(items_schemas)
-        elif isinstance(items_schemas["type"], str):
-            # This is regular array containing a single type
-            element_type = self._map_json_type_to_spark_type(items_schemas)
+            element_type = StructType(self.resolve_properties(items_schemas).fields)
         else:
-            raise Exception(f"Unexpected type value: {items_schemas}")
+            # This is regular array containing a single type
+            element_type = self.resolve_property_type(items_schemas)
 
         return ArrayType(element_type)
 
@@ -244,10 +239,10 @@ class ResolverAwareReader(Reader):
             if item_schema["type"] == "object":
                 self.logger.debug("Tuple items type is an object.")
                 tuple_field_type = StructType(
-                    self._from_json_to_spark(item_schema).fields
+                    self.resolve_properties(item_schema).fields
                 )
             else:
-                tuple_field_type = self._map_json_type_to_spark_type(item_schema)
+                tuple_field_type = self.resolve_property_type(item_schema)
 
             # TODO: check nullable
             nullable = True

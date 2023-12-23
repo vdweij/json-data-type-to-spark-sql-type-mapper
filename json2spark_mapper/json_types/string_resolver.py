@@ -1,16 +1,14 @@
 import logging
-from collections.abc import Callable
 
 from pyspark.sql.types import (
     DateType,
     StringType,
     StructField,
-    StructType,
     TimestampType,
 )
 
 from ..json_schema_drafts.drafts import JSON_DRAFTS
-from .resolver import AbstractStringResolver
+from .resolver import AbstractStringResolver, PropertyResolver
 
 
 class DefaultStringResolver(AbstractStringResolver):
@@ -22,7 +20,7 @@ class DefaultStringResolver(AbstractStringResolver):
     def resolve(
         self,
         json_snippet: dict,
-        schema_reader_callback: Callable[[dict], StructType] | None = None,
+        property_resolver: PropertyResolver | None = None,
     ) -> StructField:
         self.logger.debug("Converting string...")
 

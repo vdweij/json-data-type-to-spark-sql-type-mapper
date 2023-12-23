@@ -1,10 +1,9 @@
 import logging
-from collections.abc import Callable
 
-from pyspark.sql.types import BooleanType, StructField, StructType
+from pyspark.sql.types import BooleanType, StructField
 
 from ..json_schema_drafts.drafts import JSON_DRAFTS
-from .resolver import AbstractBooleanResolver
+from .resolver import AbstractBooleanResolver, PropertyResolver
 
 
 class DefaultBooleanResolver(AbstractBooleanResolver):
@@ -16,7 +15,7 @@ class DefaultBooleanResolver(AbstractBooleanResolver):
     def resolve(
         self,
         json_snippet: dict,
-        schema_reader_callback: Callable[[dict], StructType] | None = None,
+        property_resolver: PropertyResolver | None,
     ) -> StructField:
         self.logger.debug("Converting boolean...")
 

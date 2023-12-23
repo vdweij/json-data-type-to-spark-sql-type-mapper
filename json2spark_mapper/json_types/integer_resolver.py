@@ -1,6 +1,5 @@
 import logging
 from abc import abstractmethod
-from collections.abc import Callable
 
 from pyspark.sql.types import (
     ByteType,
@@ -8,11 +7,10 @@ from pyspark.sql.types import (
     LongType,
     ShortType,
     StructField,
-    StructType,
 )
 
 from ..json_schema_drafts.drafts import JSON_DRAFTS, JsonDraft
-from .resolver import AbstractIntegerResolver
+from .resolver import AbstractIntegerResolver, PropertyResolver
 
 
 class Range:
@@ -32,7 +30,7 @@ class BaseIntegerResolver(AbstractIntegerResolver):
     def resolve(
         self,
         json_snippet: dict,
-        schema_reader_callback: Callable[[dict], StructType] | None = None,
+        property_resolver: PropertyResolver | None,
     ) -> StructField:
         # This is tricky as there are many Spark types that can be mapped to an int
         #

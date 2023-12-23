@@ -1,14 +1,12 @@
 import logging
-from collections.abc import Callable
 
 from pyspark.sql.types import (
-    StructField,
     StructType,
 )
 
 from json2spark_mapper.json_schema_readers.schema_reader import ResolverAwareReader
+from json2spark_mapper.json_types.array_resolver import DefaultArrayResolver
 from json2spark_mapper.json_types.object_resolver import DefaultObjectResolver
-from json2spark_mapper.json_types.resolver import AbstractArrayResolver
 from json2spark_mapper.json_types.resolver_registry import ResolverRegistryBuilder
 
 from .json_schema_drafts.drafts import JSON_DRAFTS, JsonDraft
@@ -19,22 +17,6 @@ from .json_types.string_resolver import DefaultStringResolver
 
 logger = logging.getLogger(__name__)
 
-
-class DummyArrayResolver(AbstractArrayResolver):
-    logger = logging.getLogger(__name__)
-
-    def __init__(self):
-        super().__init__("Dummy Array Resolver", JSON_DRAFTS.get_all())
-
-    def resolve(
-        self,
-        json_snippet: dict,
-        schema_reader_callback: Callable[[dict], StructType] | None = None,
-    ) -> StructField:
-        self.logger.debug("Converting array...")
-        raise NotImplementedError("Dummy array resolver is just dummy...")
-
-
 # create some registries
 registry_draft_2020_12 = (
     ResolverRegistryBuilder(JSON_DRAFTS.draft_2020_12)
@@ -43,10 +25,10 @@ registry_draft_2020_12 = (
     .addNumberResolver(DefaultNumberResolver())
     .addBooleanResolver(DefaultBooleanResolver())
     .addObjectResolver(DefaultObjectResolver())
-    .addArrayResolver(DummyArrayResolver())
+    .addArrayResolver(DefaultArrayResolver())
     .build()
 )
-registry_draft_2019_09 = registry_draft_2020_12.copy(JSON_DRAFTS.draft_2019_09)
+registry_draft_2019_09 = registry_draft_2020_12.copy_to(JSON_DRAFTS.draft_2019_09)
 
 # instantiate a reader
 reader = ResolverAwareReader({registry_draft_2020_12, registry_draft_2019_09})
