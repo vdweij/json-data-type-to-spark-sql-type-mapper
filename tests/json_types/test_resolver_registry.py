@@ -20,9 +20,6 @@
 # sys.path.append(".")
 """
 import unittest
-from collections.abc import Callable
-
-from pyspark.sql.types import StructType
 
 from json2spark_mapper.json_schema_drafts.drafts import JSON_DRAFTS
 from json2spark_mapper.json_types.resolver import (
@@ -32,6 +29,7 @@ from json2spark_mapper.json_types.resolver import (
     AbstractNumberResolver,
     AbstractObjectResolver,
     AbstractStringResolver,
+    PropertyResolver,
 )
 from json2spark_mapper.json_types.resolver_registry import ResolverRegistry
 
@@ -90,7 +88,7 @@ class TestResolverRegistry(unittest.TestCase):
         def resolve(
             self,
             json_snippet: dict,
-            schema_reader_callback: Callable[[dict], StructType] | None,
+            property_resolver: PropertyResolver | None,
         ):
             return None
 
@@ -101,7 +99,7 @@ class TestResolverRegistry(unittest.TestCase):
         def resolve(
             self,
             json_snippet: dict,
-            schema_reader_callback: Callable[[dict], StructType] | None,
+            property_resolver: PropertyResolver | None,
         ):
             return None
 
@@ -112,7 +110,7 @@ class TestResolverRegistry(unittest.TestCase):
         def resolve(
             self,
             json_snippet: dict,
-            schema_reader_callback: Callable[[dict], StructType] | None,
+            property_resolver: PropertyResolver | None,
         ):
             return None
 
@@ -123,7 +121,7 @@ class TestResolverRegistry(unittest.TestCase):
         def resolve(
             self,
             json_snippet: dict,
-            schema_reader_callback: Callable[[dict], StructType] | None,
+            property_resolver: PropertyResolver | None,
         ):
             return None
 
@@ -134,7 +132,7 @@ class TestResolverRegistry(unittest.TestCase):
         def resolve(
             self,
             json_snippet: dict,
-            schema_reader_callback: Callable[[dict], StructType] | None,
+            property_resolver: PropertyResolver | None,
         ):
             return None
 
@@ -145,7 +143,7 @@ class TestResolverRegistry(unittest.TestCase):
         def resolve(
             self,
             json_snippet: dict,
-            schema_reader_callback: Callable[[dict], StructType] | None,
+            property_resolver: PropertyResolver | None,
         ):
             return None
 
