@@ -5,7 +5,10 @@ from pyspark.sql.types import (
 )
 
 from json2spark_mapper.json_schema_readers.schema_reader import ResolverAwareReader
-from json2spark_mapper.json_types.array_resolver import DefaultArrayResolver
+from json2spark_mapper.json_types.array_resolver import (
+    DefaultArrayResolver,
+    Draft202012ArrayResolver,
+)
 from json2spark_mapper.json_types.object_resolver import DefaultObjectResolver
 from json2spark_mapper.json_types.resolver_registry import ResolverRegistryBuilder
 
@@ -25,10 +28,19 @@ registry_draft_2020_12 = (
     .addNumberResolver(DefaultNumberResolver())
     .addBooleanResolver(DefaultBooleanResolver())
     .addObjectResolver(DefaultObjectResolver())
+    .addArrayResolver(Draft202012ArrayResolver())  # <-- different way of solving tuples
+    .build()
+)
+registry_draft_2019_09 = (
+    ResolverRegistryBuilder(JSON_DRAFTS.draft_2019_09)
+    .addStringResolver(DefaultStringResolver())
+    .addIntegerResolver(Draft3OnwardsIntegerResolver())
+    .addNumberResolver(DefaultNumberResolver())
+    .addBooleanResolver(DefaultBooleanResolver())
+    .addObjectResolver(DefaultObjectResolver())
     .addArrayResolver(DefaultArrayResolver())
     .build()
 )
-registry_draft_2019_09 = registry_draft_2020_12.copy_to(JSON_DRAFTS.draft_2019_09)
 
 # instantiate a reader
 reader = ResolverAwareReader({registry_draft_2020_12, registry_draft_2019_09})

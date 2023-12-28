@@ -38,7 +38,15 @@ class JsonDraft:
         return f"JSON Draft: {self._name}"
 
     def contains_url(self, url: str) -> bool:
-        return self._schema_url == str
+        # from 2019-09 all meta-schema URIs use https, but http is supported too
+        # this check should ignore a differences in http(s)
+        if self._schema_url is not None:
+            self_url_parts = self._schema_url.split("://")
+            other_url_parts = url.split("://")
+
+            return self_url_parts[1] == other_url_parts[1]
+        else:
+            return self._schema_url == url
 
     @property
     def name(self):

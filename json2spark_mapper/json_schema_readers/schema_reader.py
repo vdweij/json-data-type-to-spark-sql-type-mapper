@@ -191,9 +191,9 @@ class ResolverAwareReader(Reader, PropertyResolver):
                 self.logger.debug(f"Forcing draft: {json_draft}")
             else:
                 raise ValueError(f"Invalid force draft version: {force_json_draft}")
-        elif "$version" in json_doc:
+        elif "$schema" in json_doc:
             # get the version by url
-            json_draft = JSON_DRAFTS.get_by_schema_url(json_doc["$version"])
+            json_draft = JSON_DRAFTS.get_by_schema_url(json_doc["$schema"])
             self.logger.debug(f"Using JSON document's draft: {json_draft}")
         elif JSON_DRAFTS.contains(default_json_draft):
             # use default

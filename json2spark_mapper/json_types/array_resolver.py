@@ -88,7 +88,7 @@ class DefaultArrayResolver(AbstractArrayResolver):
 
         struct_type_fields = []
         for item_schema in items_schemas:
-            if item_schema["type"] == "object":
+            if "type" in item_schema and item_schema["type"] == "object":
                 self.logger.debug("Tuple items type is an object.")
                 tuple_field_type = StructType(
                     property_resolver.resolve_properties(item_schema).fields
@@ -103,5 +103,61 @@ class DefaultArrayResolver(AbstractArrayResolver):
                 StructField(field_name, tuple_field_type, nullable)
             )
         field_type = StructType(struct_type_fields)
+
+        return field_type
+
+
+class Draft202012ArrayResolver(DefaultArrayResolver):
+    """
+    In Draft 2020-12 `prefixItems` was introduced to allow tuple validation, meaning that when the array
+    is a collection of items where each has a different schema and the ordinal index of each item is meaningful.
+
+    In Draft 4 - 2019-09, tuple validation was handled by an alternate form of the items keyword.
+    When items was an array of schemas instead of a single schema, it behaved the way prefixItems behaves.
+
+    Args:
+        DefaultArrayResolver (_type_): _description_
+    """
+
+    logger = logging.getLogger(__name__)
+
+    def resolve(
+        self,
+        json_snippet: dict,
+        property_resolver: PropertyResolver | None,
+    ) -> StructField:
+        self.logger.debug("Converting array...")
+        if property_resolver is None:
+            raise ValueError("A property resolver is required")
+
+        if "prefixItems" in json_snippet:
+            self.logger.debug("Tuple detected...")
+            # need to find out whether there are other items allowed
+            if "items" not in json_snippet or (
+                type(json_snippet["items"]) is bool and json_snippet["items"] is False
+            ):
+                # only a tuple
+                items_schemas = json_snippet["prefixItems"]
+
+                field_type = self._convert_tuple_json_array(
+                    items_schemas, property_resolver
+                )
+            else:
+                # a tuple but any other type can follow, hence the only safe type to chooce is StringType
+                self.logger.debug("Tuple can contain more than specified types.")
+                field_type = ArrayType(StringType())
+        elif "items" in json_snippet and type(json_snippet) is dict:
+            # a regular list
+            items_schemas = json_snippet["items"]
+            field_type = self._convert_regular_json_array(
+                items_schemas, property_resolver
+            )
+        elif "contains" in json_snippet:
+            self.logger.debug("Contains detected... other types could be present")
+            # this means a type must appear in the array, but others are also allowed, hence the only safe type to chooce is StringType
+            field_type = ArrayType(StringType())
+
+        # TODO:
+        # https://json-schema.org/understanding-json-schema/reference/array#unevaluateditems
 
         return field_type
