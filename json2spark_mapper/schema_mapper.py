@@ -43,12 +43,12 @@ registry_draft_2019_09 = (
 )
 
 # instantiate a reader
-reader = ResolverAwareReader({registry_draft_2020_12, registry_draft_2019_09})
+READER = ResolverAwareReader({registry_draft_2020_12, registry_draft_2019_09})
 
 
 def from_json_to_spark(
     schema,
-    default_json_draft: JsonDraft = JSON_DRAFTS.draft_2020_12,
+    default_json_draft: JsonDraft = JSON_DRAFTS.get_latest(),
     force_json_draft: JsonDraft | None = None,
 ) -> StructType:
     """
@@ -63,4 +63,4 @@ def from_json_to_spark(
         StructType
     """
 
-    return reader.read_document(schema, default_json_draft, force_json_draft)
+    return READER.read_document(schema, default_json_draft, force_json_draft)

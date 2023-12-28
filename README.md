@@ -55,10 +55,84 @@ from json2spark_mapper.schema_mapper import from_json_to_spark
 
 ### Call mapping function
 
+#### Simplest form
+
 ```python
 with open("path-to-your-schema.json") as schema_file:
     json_schema = json.load(schema_file)
 struct_type = from_json_to_spark(json_schema)
+```
+
+#### Setting default json draft version
+
+Per default the most recent json draft version is used in case a schema lacks a `@schema` definition. The function uses
+`JSON_DRAFTS.get_latest() from module json_schema_drafts.drafts to specify the default`. This can be overridden by explictily setting
+it to a desired draft version, like so:
+
+```python
+json_schema = json.load(schema_file, default_json_draft=JSON_DRAFTS.draft_2019_09)
+```
+
+#### Forcing a json draft version
+
+The default behaviour is to use the draft version specified in the schema or when it is abcent to use the `default_json_draft` version.
+This can be overridden by specifying the `force_json_draft` property, like so:
+
+```python
+json_schema = json.load(schema_file, force_json_draft=JSON_DRAFTS.draft_2019_09)
+```
+
+The version specified via `force_json_draft` takes precedence regardless of what is specified in the schema or by the default `default_json_draft`.
+
+### Defining own Resolvers
+
+It is possible to create your own readers for various Json types. This can be done by creating an implementation of either the abstract Root `TypeResolver` or via one of its abstract type resolvers.
+
+This resolver should then be added to the appropiate `ResolverRegistry` that needs to be created for each Json draft version that is needed.
+
+This registry could then in turn be added to the `ResolverAwareReader` and needs to be assigned to `READER` of `schame_mapper`.
+
+```plantuml
+@startuml
+
+abstract class TypeResolver {
+    + TypeResolver(name: str, json_type: JsonType, draft_support: set[JsonDraft])
+    + resolve(json_snippet: dict,property_resolver: PropertyResolver | None)
+    + supports_json_snippet(json_snippet: dict)
+}
+
+abstract class AbstractStringResolver {
+    + AbstractStringResolver(name: str, draft_support: set[JsonDraft])
+}
+
+abstract class AbstractIntegerResolver {
+    + AbstractIntegerResolver(name: str, draft_support: set[JsonDraft])
+}
+
+abstract class AbstractNumberResolver {
+    + AbstractNumberResolver(name: str, draft_support: set[JsonDraft])
+}
+
+abstract class AbstractBooleanResolver {
+    + AbstractBooleanResolver(name: str, draft_support: set[JsonDraft])
+}
+
+abstract class AbstractArrayResolver {
+    + AbstractArrayResolver(name: str, draft_support: set[JsonDraft])
+}
+
+abstract class AbstractObjectResolver {
+    + AbstractObjectResolver(name: str, draft_support: set[JsonDraft])
+}
+
+TypeResolver <|-- AbstractStringResolver
+TypeResolver <|-- AbstractIntegerResolver
+TypeResolver <|-- AbstractNumberResolver
+TypeResolver <|-- AbstractBooleanResolver
+TypeResolver <|-- AbstractArrayResolver
+TypeResolver <|-- AbstractObjectResolver
+
+@enduml
 ```
 
 ### Troubleshooting
