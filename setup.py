@@ -32,4 +32,5 @@ setup(
     ],
     install_requires=core_requirements,  # Include the requirements from the file
     extras_require={"dev": dev_requirements},
+    python_requires=">=3.10",
 )
