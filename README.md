@@ -73,6 +73,11 @@ it to a desired draft version, like so:
 json_schema = json.load(schema_file, default_json_draft=JSON_DRAFTS.draft_2019_09)
 ```
 
+Don't forget to import `JSON_DRAFT`!
+```python
+from json2spark_mapper.schema_mapper import JSON_DRAFTS
+```
+
 #### Forcing a json draft version
 
 The default behaviour is to use the draft version specified in the schema or when it is abcent to use the `default_json_draft` version.
@@ -83,6 +88,11 @@ json_schema = json.load(schema_file, force_json_draft=JSON_DRAFTS.draft_2019_09)
 ```
 
 The version specified via `force_json_draft` takes precedence regardless of what is specified in the schema or by the default `default_json_draft`.
+
+Don't forget to import `JSON_DRAFT`!
+```python
+from json2spark_mapper.schema_mapper import JSON_DRAFTS
+```
 
 ### Defining own Resolvers
 
@@ -136,7 +146,20 @@ TypeResolver <|-- AbstractObjectResolver
 ```
 
 ### Troubleshooting
-Nothing here yet as this is pretty straight forward, right?!
+
+## ERROR: No matching distribution found for json2spark-mapper==[_some-version_]
+
+This library is packaged with the explict instruction `python_requires=">=3.10"` which means pip will not be able to find this
+library when tried to be installed from older Python versions.
+
+In case of **Databricks** make sure to use a runtime higher than or equal to 13.2 that comes with Python 3.10.2.
+
+## TypeError: unsupported operand type(s) for |: 'type' and 'NoneType'
+
+Python 3.10 introduced [PEP 604 – Allow writing union types as X | Y](https://peps.python.org/pep-0604/) and this form of type
+hints are used throughout the code. Make sure your project used Python 3.10 or higher.
+
+In case of **Databricks** make sure to use a runtime higher than or equal to 13.2 that comes with Python 3.10.2.
 
 ### Issues
 Please check existing issues before creating a new one.

@@ -149,9 +149,16 @@ class Draft202012ArrayResolver(DefaultArrayResolver):
         elif "items" in json_snippet and type(json_snippet) is dict:
             # a regular list
             items_schemas = json_snippet["items"]
-            field_type = self._convert_regular_json_array(
-                items_schemas, property_resolver
-            )
+
+            # check if type is a dict an not a list
+            if type(items_schemas) is dict:
+                field_type = self._convert_regular_json_array(
+                    items_schemas, property_resolver
+                )
+            else:
+                raise ValueError(
+                    f"Draft 2020-12 only allows for a boolean or single type item value in case of a 'tuple'. A {type(items_schemas)} is unsupported."
+                )
         elif "contains" in json_snippet:
             self.logger.debug("Contains detected... other types could be present")
             # this means a type must appear in the array, but others are also allowed, hence the only safe type to chooce is StringType
