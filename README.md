@@ -66,7 +66,7 @@ struct_type = from_json_to_spark(json_schema)
 #### Setting default json draft version
 
 Per default the most recent json draft version is used in case a schema lacks a `@schema` definition. The function uses
-`JSON_DRAFTS.get_latest() from module json_schema_drafts.drafts to specify the default`. This can be overridden by explictily setting
+`JSON_DRAFTS.get_latest() from module json_schema_drafts.drafts` to specify the default. This can be overridden by explictily setting
 it to a desired draft version, like so:
 
 ```python
