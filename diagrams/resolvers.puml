@@ -1,0 +1,79 @@
+@startuml Type Resolvers
+
+abstract class PropertyResolver {
+    + resolve_properties(json_snippet: dict): StructType
+    + resolve_property_type(json_snippet: dict): DataType
+}
+
+abstract class TypeResolver {
+    + TypeResolver(name: str, json_type: JsonType, draft_support: set[JsonDraft])
+    + resolve(json_snippet: dict,property_resolver: PropertyResolver | None): StructField
+    + supports_json_snippet(json_snippet: dict): bool
+}
+
+abstract class AbstractStringResolver {
+    + AbstractStringResolver(name: str, draft_support: set[JsonDraft])
+}
+
+abstract class AbstractIntegerResolver {
+    + AbstractIntegerResolver(name: str, draft_support: set[JsonDraft])
+}
+
+abstract class AbstractNumberResolver {
+    + AbstractNumberResolver(name: str, draft_support: set[JsonDraft])
+}
+
+abstract class AbstractBooleanResolver {
+    + AbstractBooleanResolver(name: str, draft_support: set[JsonDraft])
+}
+
+abstract class AbstractArrayResolver {
+    + AbstractArrayResolver(name: str, draft_support: set[JsonDraft])
+}
+
+abstract class AbstractObjectResolver {
+    + AbstractObjectResolver(name: str, draft_support: set[JsonDraft])
+}
+
+PropertyResolver <|-- TypeResolver
+
+TypeResolver <|-- AbstractStringResolver
+TypeResolver <|-- AbstractIntegerResolver
+TypeResolver <|-- AbstractNumberResolver
+TypeResolver <|-- AbstractBooleanResolver
+TypeResolver <|-- AbstractArrayResolver
+TypeResolver <|-- AbstractObjectResolver
+
+abstract class ResolverRegistry {
+
+}
+
+abstract class JsonDraft {
+
+}
+
+JsonDraft <-- ResolverRegistry
+
+AbstractStringResolver <-- ResolverRegistry
+AbstractIntegerResolver <-- ResolverRegistry
+AbstractNumberResolver <-- ResolverRegistry
+AbstractBooleanResolver <-- ResolverRegistry
+AbstractArrayResolver <-- ResolverRegistry
+AbstractObjectResolver <-- ResolverRegistry
+
+
+abstract class Reader {
+    + Reader(name: str)
+    + read_document(json: dict): StructType:
+}
+
+class ResolverAwareReader {
+    + ResolverAwareReader(resolver_registries: set[ResolverRegistry])
+}
+
+Reader <|-- ResolverAwareReader
+PropertyResolver <|-- ResolverAwareReader
+ResolverRegistry <-- ResolverAwareReader
+
+
+@enduml

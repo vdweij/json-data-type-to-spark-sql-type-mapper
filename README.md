@@ -102,48 +102,7 @@ This resolver should then be added to the appropiate `ResolverRegistry` that nee
 
 This registry could then in turn be added to the `ResolverAwareReader` and needs to be assigned to `READER` of `schame_mapper`.
 
-```plantuml
-@startuml
-
-abstract class TypeResolver {
-    + TypeResolver(name: str, json_type: JsonType, draft_support: set[JsonDraft])
-    + resolve(json_snippet: dict,property_resolver: PropertyResolver | None)
-    + supports_json_snippet(json_snippet: dict)
-}
-
-abstract class AbstractStringResolver {
-    + AbstractStringResolver(name: str, draft_support: set[JsonDraft])
-}
-
-abstract class AbstractIntegerResolver {
-    + AbstractIntegerResolver(name: str, draft_support: set[JsonDraft])
-}
-
-abstract class AbstractNumberResolver {
-    + AbstractNumberResolver(name: str, draft_support: set[JsonDraft])
-}
-
-abstract class AbstractBooleanResolver {
-    + AbstractBooleanResolver(name: str, draft_support: set[JsonDraft])
-}
-
-abstract class AbstractArrayResolver {
-    + AbstractArrayResolver(name: str, draft_support: set[JsonDraft])
-}
-
-abstract class AbstractObjectResolver {
-    + AbstractObjectResolver(name: str, draft_support: set[JsonDraft])
-}
-
-TypeResolver <|-- AbstractStringResolver
-TypeResolver <|-- AbstractIntegerResolver
-TypeResolver <|-- AbstractNumberResolver
-TypeResolver <|-- AbstractBooleanResolver
-TypeResolver <|-- AbstractArrayResolver
-TypeResolver <|-- AbstractObjectResolver
-
-@enduml
-```
+See for more info on defining and/or using custom type resolvers the following [page](docs/custom-resolver.md)
 
 ### Troubleshooting
 
