@@ -1,5 +1,6 @@
 {
     "title": "Array-No-Additional-Items-Schema",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "object",
     "properties": {
         "arrayValue": {

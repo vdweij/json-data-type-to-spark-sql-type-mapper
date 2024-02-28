@@ -18,13 +18,19 @@ with open("README.md", encoding="utf-8") as fh:
 
 setup(
     name="json2spark_mapper",
-    version="0.0.1",
+    version="1.0.0" + version_postfix,
     description="Maps JSON schema types to Spark SQL types",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/vdweij/json-data-type-to-spark-sql-type-mapper",
     author="AvdW",
-    packages=["json2spark_mapper"],
+    packages=[
+        "json2spark_mapper",
+        "json2spark_mapper.json_schema_drafts",
+        "json2spark_mapper.json_schema_readers",
+        "json2spark_mapper.json_types",
+    ],
     install_requires=core_requirements,  # Include the requirements from the file
     extras_require={"dev": dev_requirements},
+    python_requires=">=3.10",
 )
