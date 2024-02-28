@@ -18,8 +18,7 @@ with open("README.md", encoding="utf-8") as fh:
 
 setup(
     name="json2spark_mapper",
-    # version="0.1.0" + version_postfix,
-    version="0.1.0",
+    version="1.0.0" + version_postfix,
     description="Maps JSON schema types to Spark SQL types",
     long_description=long_description,
     long_description_content_type="text/markdown",
