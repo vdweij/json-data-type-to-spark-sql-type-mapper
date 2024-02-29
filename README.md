@@ -100,7 +100,7 @@ It is possible to create your own readers for various Json types. This can be do
 
 This resolver should then be added to the appropiate `ResolverRegistry` that needs to be created for each Json draft version that is needed.
 
-This registry could then in turn be added to the `ResolverAwareReader` and needs to be assigned to `READER` of `schame_mapper`.
+This registry could then in turn be added to the `ResolverAwareReader` and needs to be assigned to `READER` of `schema_mapper`.
 
 ### Troubleshooting
 
