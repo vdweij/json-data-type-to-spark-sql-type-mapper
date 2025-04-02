@@ -1,7 +1,7 @@
 # Releases
 
 ## Version 0.1.0
-#### Release date: 28 February 2023
+#### Release date: 28 February 2024
 - Introduces default JSON draft version in case schema is lacking one
 - Allows to force specific JSON draft and its corresponsing rules to be applied
 - Introduces type handlers that support a specific set of JSON drafts 
